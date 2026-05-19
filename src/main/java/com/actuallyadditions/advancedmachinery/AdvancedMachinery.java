@@ -1,10 +1,12 @@
 package com.actuallyadditions.advancedmachinery;
 
 import com.actuallyadditions.advancedmachinery.registration.*;
+import com.actuallyadditions.advancedmachinery.client.AdvancedEmpowererScreen;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,7 @@ public class AdvancedMachinery {
         ModCreativeTabs.CREATIVE_TABS.register(modEventBus);
 
         modEventBus.addListener(this::registerCapabilities);
+        modEventBus.addListener(this::registerMenuScreens);
 
         LOGGER.info("Advanced Machinery registration complete!");
     }
@@ -30,5 +33,9 @@ public class AdvancedMachinery {
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.ADVANCED_EMPOWERER.get(), (be, side) -> be.getInventory());
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.ADVANCED_EMPOWERER.get(), (be, side) -> be.getEnergyStorage());
+    }
+
+    private void registerMenuScreens(RegisterMenuScreensEvent event) {
+        event.register(ModMenuTypes.ADVANCED_EMPOWERER.get(), AdvancedEmpowererScreen::new);
     }
 }
