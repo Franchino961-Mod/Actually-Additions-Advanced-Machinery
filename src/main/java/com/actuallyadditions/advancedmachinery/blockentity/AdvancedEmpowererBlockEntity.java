@@ -32,44 +32,43 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
     // -------------------------------------------------------------------
     // EnergyStorage estesa con setter diretto per il caricamento NBT
-    // (Fix #5: evita duplicazione energia su loadAdditional doppio)
     // -------------------------------------------------------------------
-    private static class MutableEnergyStorage extends EnergyStorage {
+    public static class MutableEnergyStorage extends EnergyStorage {
         public MutableEnergyStorage(int capacity) {
             super(capacity);
         }
 
-        /** Imposta direttamente l'energia senza passare per receiveEnergy(). */
         public void setStored(int amount) {
             this.energy = Math.min(Math.max(0, amount), this.capacity);
         }
     }
 
     // -------------------------------------------------------------------
-    // Inventory layout (8 slots total):
-    // 0 – Input A
-    // 1 – Input B
-    // 2 – Input C
-    // 3 – (riservato – NON accetta item finché non implementato)
-    // 4 – (riservato – NON accetta item finché non implementato)
+    // Inventory layout (8 slot):
+    // 0 – Input base
+    // 1 – Input modifier 1
+    // 2 – Input modifier 2
+    // 3 – (BLOCCATO – riservato, non accetta item)
+    // 4 – (BLOCCATO – riservato, non accetta item)
     // 5 – Output
-    // 6 – Speed Upgrade (max stack 4)
-    // 7 – Efficiency Upgrade (max stack 4)
+    // 6 – Speed Upgrade (max 4)
+    // 7 – Efficiency Upgrade (max 4)
     // -------------------------------------------------------------------
     private final ItemStackHandler inventory = new ItemStackHandler(8) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            recipeDirty = true; // Fix #8: invalida la cache ricetta
+            recipeDirty = true;
         }
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             return switch (slot) {
-                case 5    -> false; // output – no inserimento manuale
-                case 6    -> stack.getItem() == ModItems.SPEED_UPGRADE.get();
-                case 7    -> stack.getItem() == ModItems.EFFICIENCY_UPGRADE.get();
-                default   -> true; // Slot 0, 1, 2, 3, 4 sono tutti validi come input
+                case 3, 4 -> false; // riservati – nessun inserimento
+                case 5 -> false; // output – no inserimento manuale
+                case 6 -> stack.getItem() == ModItems.SPEED_UPGRADE.get();
+                case 7 -> stack.getItem() == ModItems.EFFICIENCY_UPGRADE.get();
+                default -> true; // slot 0, 1, 2 → input liberi
             };
         }
 
@@ -90,15 +89,15 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     }
 
     // -------------------------------------------------------------------
-    // Recipe cache (Fix #8): ricalcolata solo quando l'inventario cambia
+    // Recipe cache
     // -------------------------------------------------------------------
     @Nullable
     private Optional<RecipeHolder<EmpowererRecipe>> cachedRecipe = null;
     private boolean recipeDirty = true;
 
-    // ContainerData esposta al menu/screen (4 interi)
+    // ContainerData: 0=progress, 1=maxProgress, 2=energyStored, 3=maxEnergy
     protected final ContainerData data;
-    private int progress    = 0;
+    private int progress = 0;
     private int maxProgress = BASE_SPEED;
 
     public AdvancedEmpowererBlockEntity(BlockPos pos, BlockState state) {
@@ -117,11 +116,14 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
             @Override
             public void set(int index, int value) {
-                // I valori 2/3 (energia) sono read-only lato client; 0/1 vengono
-                // sincronizzati dal server attraverso addDataSlots() nel menu.
+                // FIX CRITICO: i casi 2 e 3 (energia) devono essere aggiornati
+                // lato client affinché la barra GUI mostri il valore corretto.
                 switch (index) {
-                    case 0 -> progress    = value;
+                    case 0 -> progress = value;
                     case 1 -> maxProgress = value;
+                    case 2 -> energy.setStored(value);
+                    case 3 -> {
+                        /* maxEnergy è costante, non serve aggiornare */ }
                 }
             }
 
@@ -130,6 +132,10 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                 return 4;
             }
         };
+    }
+
+    public ContainerData getContainerData() {
+        return this.data;
     }
 
     @Override
@@ -147,7 +153,8 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     // Tick
     // -------------------------------------------------------------------
     public void tick(Level level, BlockPos pos, BlockState state) {
-        if (level.isClientSide) return;
+        if (level.isClientSide)
+            return;
 
         Optional<RecipeHolder<EmpowererRecipe>> recipeOpt = getRecipe();
         if (recipeOpt.isPresent()) {
@@ -159,10 +166,8 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
             if (this.energy.getEnergyStored() >= energyPerTick) {
 
-                // Fix #6: se siamo all'ultimo tick e l'output è pieno,
-                // NON consumare energia e NON azzerare il progress.
                 if (this.progress >= this.maxProgress - 1 && !canCraft(recipe)) {
-                    return; // attesa output – nessuno spreco di energia
+                    return;
                 }
 
                 this.energy.extractEnergy(energyPerTick, false);
@@ -183,12 +188,13 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     }
 
     // -------------------------------------------------------------------
-    // Recipe matching – usa i 3 slot di input attivi (0, 1, 2)
-    // Slot 3 e 4 passati come EMPTY per compatibilità con AA (5 ingredienti)
-    // Fix #8: risultato cachato, ricalcolato solo se recipeDirty
+    // Recipe matching
+    // Slot 3 e 4 sono BLOCCATI → vengono passati come EMPTY all'API di AA,
+    // il che è corretto per ricette base+2 modifier.
     // -------------------------------------------------------------------
     private Optional<RecipeHolder<EmpowererRecipe>> getRecipe() {
-        if (level == null) return Optional.empty();
+        if (level == null)
+            return Optional.empty();
 
         if (recipeDirty || cachedRecipe == null) {
             cachedRecipe = level.getRecipeManager()
@@ -198,8 +204,8 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                             inventory.getStackInSlot(0),
                             inventory.getStackInSlot(1),
                             inventory.getStackInSlot(2),
-                            inventory.getStackInSlot(3),
-                            inventory.getStackInSlot(4)
+                            ItemStack.EMPTY, // slot 3 – sempre vuoto
+                            ItemStack.EMPTY // slot 4 – sempre vuoto
                     ))
                     .findFirst();
             recipeDirty = false;
@@ -207,9 +213,8 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         return cachedRecipe;
     }
 
-    /** Fix #6: verifica se c'è spazio nell'output prima di completare la craft. */
     private boolean canCraft(EmpowererRecipe recipe) {
-        ItemStack result     = recipe.getOutput().copy();
+        ItemStack result = recipe.getOutput().copy();
         ItemStack currentOut = inventory.getStackInSlot(5);
         return currentOut.isEmpty()
                 || (ItemStack.isSameItem(currentOut, result)
@@ -217,17 +222,21 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     }
 
     private void craftItem(EmpowererRecipe recipe) {
-        ItemStack result     = recipe.getOutput().copy();
+        ItemStack result = recipe.getOutput().copy();
         ItemStack currentOut = inventory.getStackInSlot(5);
 
-        for (int i = 0; i < 5; i++) {
+        // FIX: consuma solo slot 0, 1, 2 (gli input attivi)
+        // Slot 3 e 4 sono bloccati e non contengono item
+        for (int i = 0; i < 3; i++) {
             inventory.extractItem(i, 1, false);
         }
+
         if (currentOut.isEmpty()) {
             inventory.setStackInSlot(5, result);
         } else {
             currentOut.grow(result.getCount());
         }
+        setChanged();
     }
 
     // -------------------------------------------------------------------
@@ -258,10 +267,8 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("Inventory"));
-        // Fix #5: usa setStored() per impostare direttamente il valore
-        // senza sommare a quello già presente (idempotente).
         energy.setStored(tag.getInt("Energy"));
         this.progress = tag.getInt("Progress");
-        this.recipeDirty = true; // invalida cache dopo il caricamento
+        this.recipeDirty = true;
     }
 }
