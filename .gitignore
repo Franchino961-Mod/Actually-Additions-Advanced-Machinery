@@ -1,83 +1,108 @@
-# ==========================================
-# File di sistema e temporanei
-# ==========================================
+# =========================
+# Global / workspace noise
+# =========================
+
+# Operating system files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 Desktop.ini
-*.tmp
-*.temp
-*.bak
-*.backup
 *.js
 
-# ==========================================
-# Configurazioni IDE / Editor
-# ==========================================
-/.vscode/
-/.idea/
+# Editor / IDE files
+.vscode/
+.idea/
 *.iml
 *.ipr
 *.iws
 .project
 .classpath
-/.settings/
+.settings/
+*.swp
+*.swo
+*~
 
-# ==========================================
-# Java / Gradle (Compilazione e Build)
-# ==========================================
-/.gradle/
-/build/
-/out/
-/bin/
-/classes/
-/libs/
-*.class
+# Backups / temporary files
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+*.temp
+*.rej
+*.diff
+*.patch
+backup/
 
-# Escludi tutti i file JAR tranne il Gradle Wrapper, necessario per la compilazione
-*.jar
-!gradle/wrapper/gradle-wrapper.jar
-
-# ==========================================
-# Ambiente di Esecuzione Minecraft / NeoForge
-# ==========================================
-# Nota: L'uso di '/' all'inizio garantisce che vengano ignorate
-# solo le cartelle nella root, per evitare di ignorare pacchetti Java come "client" o "server".
-/runs/
-/run/
-/run-*/
-/.run/
-/.neoforge/
-/neoforge-out/
-/server/
-/world/
-/saves/
-/screenshots/
-/crash-reports/
-/logs/
+# Logs / diagnostics
 *.log
+*.log.*
+logs/
+log/
+crash-reports/
+debug.log
+*.zip
+
+# Caches / tool state
+.cache/
+
+# ==================================
+# Java / Gradle / Fabric Mod
+# ==================================
+
+.gradle/
+build/
+out/
+bin/
+classes/
+generated/
+generated-sources/
+generated-resources/
+*.class
+*.jar
+*.lck
+
+# Mod dev environments
+run/
+runs/
+run-*/
+.run/
+.minecraft/
+server/
+client/
+!src/client/
+!src/client/**
+world/
+saves/
+testworld/
+testworlds/
+screenshots/
 hs_err_pid*
 replay_pid*
 
-# ==========================================
-# Archivi / Pacchetti
-# ==========================================
-*.zip
-*.tar
-*.tar.gz
-*.tgz
-*.gz
-*.7z
-*.rar
+# Mod-loader specific folders
+.fabric/
+.forge/
+.neoforge/
+.mixin.out/
+.mcp/
+.architectury/
 
-# ==========================================
-# Credenziali / Sicurezza
-# ==========================================
-.env
-.env.*
-*.env
-*.env.*
-*.local
-*.secret
-*.secrets
-*.key
-*.pem
+# Packaged outputs from mod tooling
+remappedSrc/
+remappedClasses/
+fabric-out/
+forge-out/
+neoforge-out/
+
+# =========================
+# Documentation / media / assets
+# =========================
+
+Docs/*
+!README.*.md
+!CHANGELOG.*.md
