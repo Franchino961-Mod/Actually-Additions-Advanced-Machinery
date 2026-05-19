@@ -1,0 +1,16 @@
+# Normalize line endings across platforms
+* text=auto
+
+*.java   text eol=lf
+*.json   text eol=lf
+*.toml   text eol=lf
+*.gradle text eol=lf
+*.md     text eol=lf
+*.txt    text eol=lf
+
+# Binary assets — never mangle
+*.png    binary
+*.jpg    binary
+*.ogg    binary
+*.wav    binary
+*.jar    binary
