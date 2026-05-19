@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " E ",
+        "EDE",
+        " E "
+    ],
+    "key": {
+        "E": {
+            "item": "minecraft:emerald"
+        },
+        "D": {
+            "item": "minecraft:diamond"
+        }
+    },
+    "result": {
+        "id": "advancedmachinery:efficiency_upgrade",
+        "count": 1
+    }
+}
