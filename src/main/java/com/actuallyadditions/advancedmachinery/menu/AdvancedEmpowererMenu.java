@@ -1,133 +1,205 @@
 package com.actuallyadditions.advancedmachinery.menu;
 
 import com.actuallyadditions.advancedmachinery.blockentity.AdvancedEmpowererBlockEntity;
-import com.actuallyadditions.advancedmachinery.registration.ModBlocks;
+import com.actuallyadditions.advancedmachinery.registration.ModItems;
 import com.actuallyadditions.advancedmachinery.registration.ModMenuTypes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.*;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.SimpleContainerData;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class AdvancedEmpowererMenu extends AbstractContainerMenu {
+
     private final AdvancedEmpowererBlockEntity blockEntity;
+    private final Level level;
     private final ContainerData data;
 
-    // Client constructor — safe null/type check before cast
-    public AdvancedEmpowererMenu(int id, Inventory inv, FriendlyByteBuf extraData) {
-        this(id, inv, resolveBlockEntity(inv, extraData.readBlockPos()), new SimpleContainerData(4));
-    }
+    // -----------------------------------------------------------------------
+    // ContainerData indices
+    // 0 = progress
+    // 1 = maxProgress
+    // 2 = energyStored
+    // 3 = maxEnergy
+    // -----------------------------------------------------------------------
 
-    private static AdvancedEmpowererBlockEntity resolveBlockEntity(Inventory inv, BlockPos pos) {
-        BlockEntity be = inv.player.level().getBlockEntity(pos);
-        if (be instanceof AdvancedEmpowererBlockEntity aebe) return aebe;
-        throw new IllegalStateException("Expected AdvancedEmpowererBlockEntity at " + pos + ", got: " + be);
-    }
-
-    // Common constructor
-    public AdvancedEmpowererMenu(int id, Inventory inv, AdvancedEmpowererBlockEntity entity, ContainerData data) {
-        super(ModMenuTypes.ADVANCED_EMPOWERER.get(), id);
-        this.blockEntity = entity;
+    // Costruttore SERVER (chiamato da BlockEntity.createMenu)
+    public AdvancedEmpowererMenu(int containerId, Inventory playerInventory,
+            AdvancedEmpowererBlockEntity blockEntity, ContainerData data) {
+        super(ModMenuTypes.ADVANCED_EMPOWERER.get(), containerId);
+        this.blockEntity = blockEntity;
+        this.level = playerInventory.player.level();
         this.data = data;
 
-        checkContainerDataCount(data, 4);
+        addBlockEntitySlots(blockEntity.getInventory());
+        addPlayerInventory(playerInventory);
+        addPlayerHotbar(playerInventory);
         addDataSlots(data);
-
-        // -----------------------------------------------------------
-        // Layout griglia chest-vanilla (x=8+col*18, y=18+row*18):
-        // Inv slot 0 → Centro    (grid 20 → col2,row2) → (44, 54)
-        // Inv slot 1 → Alto      (grid  2 → col2,row0) → (44, 18)
-        // Inv slot 2 → Destra    (grid 22 → col4,row2) → (80, 54)
-        // Inv slot 3 → Basso     (grid 38 → col2,row4) → (44, 90)
-        // Inv slot 4 → Sinistra  (grid 18 → col0,row2) → ( 8, 54)
-        // Inv slot 5 → Output    (grid 24 → col6,row2) → (116,54)
-        // Inv slot 6 → Speed Up  (grid 41 → col5,row4) → (98, 90)
-        // Inv slot 7 → Effic. Up (grid 42 → col6,row4) → (116,90)
-        // -----------------------------------------------------------
-        addSlot(new SlotItemHandler(entity.getInventory(), 0,  44, 54)); // Centro
-        addSlot(new SlotItemHandler(entity.getInventory(), 1,  44, 18)); // Alto
-        addSlot(new SlotItemHandler(entity.getInventory(), 2,  80, 54)); // Destra
-        addSlot(new SlotItemHandler(entity.getInventory(), 3,  44, 90)); // Basso
-        addSlot(new SlotItemHandler(entity.getInventory(), 4,   8, 54)); // Sinistra
-
-        // Output slot (5)
-        addSlot(new SlotItemHandler(entity.getInventory(), 5, 116, 54));
-
-        // Upgrade slots (6-7)
-        addSlot(new SlotItemHandler(entity.getInventory(), 6,  98, 90)); // Speed
-        addSlot(new SlotItemHandler(entity.getInventory(), 7, 116, 90)); // Efficiency
-
-        // Player inventory — inizia dopo le 5 righe macchina (y=108) + gap 14px = y=122
-        // Hotbar a y=122+58=180; GUI height totale = 204px
-        layoutPlayerInventorySlots(inv, 8, 122);
     }
 
+    // Costruttore CLIENT (chiamato dal network)
+    // FIX CRITICO: fallback sicuro invece di IllegalStateException
+    public AdvancedEmpowererMenu(int containerId, Inventory playerInventory,
+            net.minecraft.network.FriendlyByteBuf buf) {
+        super(ModMenuTypes.ADVANCED_EMPOWERER.get(), containerId);
+        this.level = playerInventory.player.level();
 
-    public int getProgress()    { return data.get(0); }
-    public int getMaxProgress() { return data.get(1); }
-    public int getEnergy()      { return data.get(2); }
-    public int getMaxEnergy()   { return data.get(3); }
+        BlockPos pos = buf.readBlockPos();
+        BlockEntity be = this.level.getBlockEntity(pos);
 
-    @Override
-    public ItemStack quickMoveStack(Player player, int index) {
-        ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = this.slots.get(index);
-
-        if (slot != null && slot.hasItem()) {
-            ItemStack itemstack1 = slot.getItem();
-            itemstack = itemstack1.copy();
-
-            if (index < 8) { // Dal macchinario all'inventario player
-                if (!this.moveItemStackTo(itemstack1, 8, 44, true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else { // Dall'inventario player al macchinario
-                if (itemstack1.getItem() == com.actuallyadditions.advancedmachinery.registration.ModItems.SPEED_UPGRADE.get()) {
-                    if (!this.moveItemStackTo(itemstack1, 6, 7, false)) return ItemStack.EMPTY;
-                } else if (itemstack1.getItem() == com.actuallyadditions.advancedmachinery.registration.ModItems.EFFICIENCY_UPGRADE.get()) {
-                    if (!this.moveItemStackTo(itemstack1, 7, 8, false)) return ItemStack.EMPTY;
-                } else if (!this.moveItemStackTo(itemstack1, 0, 5, false)) {
-                    return ItemStack.EMPTY;
-                }
-            }
-
-            if (itemstack1.isEmpty()) {
-                slot.set(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
-
-            if (itemstack1.getCount() == itemstack.getCount()) {
-                return ItemStack.EMPTY;
-            }
-
-            slot.onTake(player, itemstack1);
+        if (be instanceof AdvancedEmpowererBlockEntity emp) {
+            this.blockEntity = emp;
+            this.data = emp.getContainerData();
+        } else {
+            // Race condition o chunk non ancora caricato: usa dummy per evitare crash
+            this.blockEntity = new AdvancedEmpowererBlockEntity(pos,
+                    Blocks.AIR.defaultBlockState());
+            this.data = new SimpleContainerData(4);
         }
 
-        return itemstack;
+        addBlockEntitySlots(this.blockEntity.getInventory());
+        addPlayerInventory(playerInventory);
+        addPlayerHotbar(playerInventory);
+        addDataSlots(this.data);
+    }
+
+    // -----------------------------------------------------------------------
+    // Slot layout GUI (indici menu):
+    // 0 – Input base (inv slot 0)
+    // 1 – Input modifier 1 (inv slot 1)
+    // 2 – Input modifier 2 (inv slot 2)
+    // 3 – Output (read-only) (inv slot 5)
+    // 4 – Speed Upgrade (inv slot 6)
+    // 5 – Efficiency Upgrade (inv slot 7)
+    // 6–32 – Inventario player (3×9)
+    // 33–41 – Hotbar player (9)
+    // -----------------------------------------------------------------------
+    private void addBlockEntitySlots(IItemHandler handler) {
+        addSlot(new SlotItemHandler(handler, 0, 56, 35));
+        addSlot(new SlotItemHandler(handler, 1, 76, 35));
+        addSlot(new SlotItemHandler(handler, 2, 96, 35));
+
+        // Output — nessun inserimento manuale
+        addSlot(new SlotItemHandler(handler, 5, 134, 35) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return false;
+            }
+        });
+
+        // Upgrade slots
+        addSlot(new SlotItemHandler(handler, 6, 56, 60)); // Speed
+        addSlot(new SlotItemHandler(handler, 7, 76, 60)); // Efficiency
+    }
+
+    private void addPlayerInventory(Inventory playerInventory) {
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                addSlot(new Slot(playerInventory, col + row * 9 + 9,
+                        8 + col * 18, 122 + row * 18));
+            }
+        }
+    }
+
+    private void addPlayerHotbar(Inventory playerInventory) {
+        for (int col = 0; col < 9; col++) {
+            addSlot(new Slot(playerInventory, col, 8 + col * 18, 180));
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Getter letti dal ContainerData — usati dalla Screen
+    // -----------------------------------------------------------------------
+    public int getProgress() {
+        return data.get(0);
+    }
+
+    public int getMaxProgress() {
+        return data.get(1);
+    }
+
+    public int getEnergy() {
+        return data.get(2);
+    }
+
+    public int getMaxEnergy() {
+        return data.get(3);
+    }
+
+    // -----------------------------------------------------------------------
+    // Shift+Click
+    // -----------------------------------------------------------------------
+    @Override
+    public ItemStack quickMoveStack(Player player, int index) {
+        Slot slot = this.slots.get(index);
+        if (!slot.hasItem())
+            return ItemStack.EMPTY;
+
+        ItemStack stack = slot.getItem();
+        ItemStack original = stack.copy();
+
+        if (index == 3) {
+            // Output → sposta nell'inventario (da fondo)
+            if (!this.moveItemStackTo(stack, 6, 42, true))
+                return ItemStack.EMPTY;
+            slot.onQuickCraft(stack, original);
+
+        } else if (index < 6) {
+            // Input (0-2) o upgrade (4-5) → sposta nell'inventario
+            if (!this.moveItemStackTo(stack, 6, 42, false))
+                return ItemStack.EMPTY;
+
+        } else {
+            // Dall'inventario/hotbar → tenta lo slot corretto in macchina
+            if (stack.getItem() == ModItems.SPEED_UPGRADE.get()) {
+                if (!this.moveItemStackTo(stack, 4, 5, false))
+                    return ItemStack.EMPTY;
+            } else if (stack.getItem() == ModItems.EFFICIENCY_UPGRADE.get()) {
+                if (!this.moveItemStackTo(stack, 5, 6, false))
+                    return ItemStack.EMPTY;
+            } else {
+                // Tenta gli slot input (0–2)
+                if (!this.moveItemStackTo(stack, 0, 3, false))
+                    return ItemStack.EMPTY;
+            }
+        }
+
+        if (stack.isEmpty()) {
+            slot.set(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
+
+        if (stack.getCount() == original.getCount())
+            return ItemStack.EMPTY;
+
+        slot.onTake(player, stack);
+        return original;
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return AbstractContainerMenu.stillValid(
-                ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos()),
+        return stillValid(
+                ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
                 player,
-                ModBlocks.ADVANCED_EMPOWERER.get());
+                blockEntity.getBlockState().getBlock());
     }
 
-    private void layoutPlayerInventorySlots(Inventory inv, int x, int y) {
-        // 3 righe inventario (slot 9-35)
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 9; j++) {
-                addSlot(new Slot(inv, j + i * 9 + 9, x + j * 18, y + i * 18));
-            }
-        }
-        // Hotbar (slot 0-8), 58px sotto l'inizio dell'inventario
-        for (int i = 0; i < 9; i++) {
-            addSlot(new Slot(inv, i, x + i * 18, y + 58));
-        }
+    // Esposto per il costruttore client del dummy
+    public ContainerData getData() {
+        return data;
+    }
+
+    public AdvancedEmpowererBlockEntity getBlockEntity() {
+        return blockEntity;
     }
 }
