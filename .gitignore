@@ -1,0 +1,83 @@
+# ==========================================
+# File di sistema e temporanei
+# ==========================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*.temp
+*.bak
+*.backup
+*.js
+
+# ==========================================
+# Configurazioni IDE / Editor
+# ==========================================
+/.vscode/
+/.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+/.settings/
+
+# ==========================================
+# Java / Gradle (Compilazione e Build)
+# ==========================================
+/.gradle/
+/build/
+/out/
+/bin/
+/classes/
+/libs/
+*.class
+
+# Escludi tutti i file JAR tranne il Gradle Wrapper, necessario per la compilazione
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# ==========================================
+# Ambiente di Esecuzione Minecraft / NeoForge
+# ==========================================
+# Nota: L'uso di '/' all'inizio garantisce che vengano ignorate
+# solo le cartelle nella root, per evitare di ignorare pacchetti Java come "client" o "server".
+/runs/
+/run/
+/run-*/
+/.run/
+/.neoforge/
+/neoforge-out/
+/server/
+/world/
+/saves/
+/screenshots/
+/crash-reports/
+/logs/
+*.log
+hs_err_pid*
+replay_pid*
+
+# ==========================================
+# Archivi / Pacchetti
+# ==========================================
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.gz
+*.7z
+*.rar
+
+# ==========================================
+# Credenziali / Sicurezza
+# ==========================================
+.env
+.env.*
+*.env
+*.env.*
+*.local
+*.secret
+*.secrets
+*.key
+*.pem
