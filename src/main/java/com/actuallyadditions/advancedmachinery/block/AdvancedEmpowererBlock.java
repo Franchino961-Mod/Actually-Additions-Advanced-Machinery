@@ -5,8 +5,10 @@ import com.actuallyadditions.advancedmachinery.registration.ModBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -95,9 +97,9 @@ public class AdvancedEmpowererBlock extends BaseEntityBlock {
                 for (int i = 0; i < inv.getSlots(); i++) {
                     // Non droppare slot 3 e 4 (sempre vuoti per design)
                     // ma droppare tutto il resto per sicurezza
-                    net.minecraft.world.item.ItemStack stack = inv.getStackInSlot(i);
+                    ItemStack stack = inv.getStackInSlot(i);
                     if (!stack.isEmpty()) {
-                        net.minecraft.world.Containers.dropItemStack(
+                        Containers.dropItemStack(
                                 level,
                                 pos.getX(), pos.getY(), pos.getZ(),
                                 stack);
