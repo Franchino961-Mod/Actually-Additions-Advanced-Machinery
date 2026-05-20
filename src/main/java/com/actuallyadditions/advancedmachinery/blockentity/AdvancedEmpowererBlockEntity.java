@@ -44,13 +44,13 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     }
 
     // -------------------------------------------------------------------
-    // Inventory layout (8 slot):
-    // 0 – Input base
-    // 1 – Input modifier 1
-    // 2 – Input modifier 2
-    // 3 – (BLOCCATO – riservato, non accetta item)
-    // 4 – (BLOCCATO – riservato, non accetta item)
-    // 5 – Output
+    // Inventory layout (9 slot):
+    // 0 – Input centro-alto (croce: top)
+    // 1 – Input sinistra (croce: left)
+    // 2 – Input centro (croce: center)
+    // 3 – Input destra (croce: right)
+    // 4 – Input centro-basso (croce: bottom)
+    // 5 – Output (read-only)
     // 6 – Speed Upgrade (max 4)
     // 7 – Efficiency Upgrade (max 4)
     // -------------------------------------------------------------------
@@ -64,11 +64,10 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             return switch (slot) {
-                case 3, 4 -> false; // riservati – nessun inserimento
                 case 5 -> false; // output – no inserimento manuale
                 case 6 -> stack.getItem() == ModItems.SPEED_UPGRADE.get();
                 case 7 -> stack.getItem() == ModItems.EFFICIENCY_UPGRADE.get();
-                default -> true; // slot 0, 1, 2 → input liberi
+                default -> true; // slot 0,1,2,3,4 → input liberi
             };
         }
 
@@ -116,14 +115,12 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
             @Override
             public void set(int index, int value) {
-                // FIX CRITICO: i casi 2 e 3 (energia) devono essere aggiornati
-                // lato client affinché la barra GUI mostri il valore corretto.
                 switch (index) {
                     case 0 -> progress = value;
                     case 1 -> maxProgress = value;
                     case 2 -> energy.setStored(value);
                     case 3 -> {
-                        /* maxEnergy è costante, non serve aggiornare */ }
+                        /* maxEnergy è costante */ }
                 }
             }
 
@@ -188,25 +185,25 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     }
 
     // -------------------------------------------------------------------
-    // Recipe matching
-    // Slot 3 e 4 sono BLOCCATI → vengono passati come EMPTY all'API di AA,
-    // il che è corretto per ricette base+2 modifier.
+    // Recipe matching — usa tutti e 5 gli slot input
+    // L'EmpowererRecipe di AA accetta: input base + 4 modifier
+    // Slot 0 = base, slot 1-4 = modifier (in qualsiasi ordine)
     // -------------------------------------------------------------------
     private Optional<RecipeHolder<EmpowererRecipe>> getRecipe() {
         if (level == null)
             return Optional.empty();
 
         if (recipeDirty || cachedRecipe == null) {
+            ItemStack base = inventory.getStackInSlot(0);
+            ItemStack m1 = inventory.getStackInSlot(1);
+            ItemStack m2 = inventory.getStackInSlot(2);
+            ItemStack m3 = inventory.getStackInSlot(3);
+            ItemStack m4 = inventory.getStackInSlot(4);
+
             cachedRecipe = level.getRecipeManager()
                     .getAllRecipesFor(ActuallyRecipes.Types.EMPOWERING.get())
                     .stream()
-                    .filter(r -> r.value().matches(
-                            inventory.getStackInSlot(0),
-                            inventory.getStackInSlot(1),
-                            inventory.getStackInSlot(2),
-                            ItemStack.EMPTY, // slot 3 – sempre vuoto
-                            ItemStack.EMPTY // slot 4 – sempre vuoto
-                    ))
+                    .filter(r -> r.value().matches(base, m1, m2, m3, m4))
                     .findFirst();
             recipeDirty = false;
         }
@@ -225,9 +222,8 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         ItemStack result = recipe.getOutput().copy();
         ItemStack currentOut = inventory.getStackInSlot(5);
 
-        // FIX: consuma solo slot 0, 1, 2 (gli input attivi)
-        // Slot 3 e 4 sono bloccati e non contengono item
-        for (int i = 0; i < 3; i++) {
+        // Consuma tutti e 5 gli slot input
+        for (int i = 0; i < 5; i++) {
             inventory.extractItem(i, 1, false);
         }
 
