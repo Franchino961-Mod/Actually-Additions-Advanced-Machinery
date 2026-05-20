@@ -32,7 +32,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
     // 3 = maxEnergy
     // -----------------------------------------------------------------------
 
-    // Costruttore SERVER (chiamato da BlockEntity.createMenu)
+    // Costruttore SERVER
     public AdvancedEmpowererMenu(int containerId, Inventory playerInventory,
             AdvancedEmpowererBlockEntity blockEntity, ContainerData data) {
         super(ModMenuTypes.ADVANCED_EMPOWERER.get(), containerId);
@@ -46,8 +46,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    // Costruttore CLIENT (chiamato dal network)
-    // FIX CRITICO: fallback sicuro invece di IllegalStateException
+    // Costruttore CLIENT
     public AdvancedEmpowererMenu(int containerId, Inventory playerInventory,
             net.minecraft.network.FriendlyByteBuf buf) {
         super(ModMenuTypes.ADVANCED_EMPOWERER.get(), containerId);
@@ -60,7 +59,6 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
             this.blockEntity = emp;
             this.data = emp.getContainerData();
         } else {
-            // Race condition o chunk non ancora caricato: usa dummy per evitare crash
             this.blockEntity = new AdvancedEmpowererBlockEntity(pos,
                     Blocks.AIR.defaultBlockState());
             this.data = new SimpleContainerData(4);
@@ -73,23 +71,30 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
     }
 
     // -----------------------------------------------------------------------
-    // Slot layout GUI (indici menu):
-    // 0 – Input base (inv slot 0)
-    // 1 – Input modifier 1 (inv slot 1)
-    // 2 – Input modifier 2 (inv slot 2)
-    // 3 – Output (read-only) (inv slot 5)
-    // 4 – Speed Upgrade (inv slot 6)
-    // 5 – Efficiency Upgrade (inv slot 7)
-    // 6–32 – Inventario player (3×9)
-    // 33–41 – Hotbar player (9)
+    // Slot layout GUI — coordinate dalla texture advanced_empowerer.png
+    //
+    // Indice Inv Posizione Ruolo
+    // 0 0 (44, 18) Input 0 – centro-alto (croce: top)
+    // 1 1 ( 8, 54) Input 1 – sinistra (croce: left)
+    // 2 2 (44, 54) Input 2 – centro (croce: center)
+    // 3 3 (80, 54) Input 3 – destra (croce: right)
+    // 4 4 (44, 90) Input 4 – centro-basso (croce: bottom)
+    // 5 5 (116, 54) Output (read-only, bordo dorato)
+    // 6 6 (98, 90) Speed Upgrade
+    // 7 7 (116, 90) Efficiency Upgrade
+    // 8–34 – Inventario player (3×9)
+    // 35–43 – Hotbar player (9)
     // -----------------------------------------------------------------------
     private void addBlockEntitySlots(IItemHandler handler) {
-        addSlot(new SlotItemHandler(handler, 0, 56, 35));
-        addSlot(new SlotItemHandler(handler, 1, 76, 35));
-        addSlot(new SlotItemHandler(handler, 2, 96, 35));
+        // Input a croce
+        addSlot(new SlotItemHandler(handler, 0, 44, 18)); // top
+        addSlot(new SlotItemHandler(handler, 1, 8, 54)); // left
+        addSlot(new SlotItemHandler(handler, 2, 44, 54)); // center
+        addSlot(new SlotItemHandler(handler, 3, 80, 54)); // right
+        addSlot(new SlotItemHandler(handler, 4, 44, 90)); // bottom
 
         // Output — nessun inserimento manuale
-        addSlot(new SlotItemHandler(handler, 5, 134, 35) {
+        addSlot(new SlotItemHandler(handler, 5, 116, 54) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false;
@@ -97,8 +102,8 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
         });
 
         // Upgrade slots
-        addSlot(new SlotItemHandler(handler, 6, 56, 60)); // Speed
-        addSlot(new SlotItemHandler(handler, 7, 76, 60)); // Efficiency
+        addSlot(new SlotItemHandler(handler, 6, 98, 90)); // Speed
+        addSlot(new SlotItemHandler(handler, 7, 116, 90)); // Efficiency
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -117,7 +122,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
     }
 
     // -----------------------------------------------------------------------
-    // Getter letti dal ContainerData — usati dalla Screen
+    // Getter letti dal ContainerData
     // -----------------------------------------------------------------------
     public int getProgress() {
         return data.get(0);
@@ -137,6 +142,9 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
 
     // -----------------------------------------------------------------------
     // Shift+Click
+    // Slot macchina: 0–7 (0–4 input, 5 output, 6–7 upgrade)
+    // Inventario player: 8–34
+    // Hotbar player: 35–43
     // -----------------------------------------------------------------------
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
@@ -147,39 +155,37 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
         ItemStack stack = slot.getItem();
         ItemStack original = stack.copy();
 
-        if (index == 3) {
+        if (index == 5) {
             // Output → sposta nell'inventario (da fondo)
-            if (!this.moveItemStackTo(stack, 6, 42, true))
+            if (!this.moveItemStackTo(stack, 8, 44, true))
                 return ItemStack.EMPTY;
             slot.onQuickCraft(stack, original);
 
-        } else if (index < 6) {
-            // Input (0-2) o upgrade (4-5) → sposta nell'inventario
-            if (!this.moveItemStackTo(stack, 6, 42, false))
+        } else if (index < 8) {
+            // Input (0-4) o upgrade (6-7) → sposta nell'inventario
+            if (!this.moveItemStackTo(stack, 8, 44, false))
                 return ItemStack.EMPTY;
 
         } else {
             // Dall'inventario/hotbar → tenta lo slot corretto in macchina
             boolean moved = false;
             if (stack.getItem() == ModItems.SPEED_UPGRADE.get()) {
-                moved = this.moveItemStackTo(stack, 4, 5, false);
+                moved = this.moveItemStackTo(stack, 6, 7, false);
             } else if (stack.getItem() == ModItems.EFFICIENCY_UPGRADE.get()) {
-                moved = this.moveItemStackTo(stack, 5, 6, false);
+                moved = this.moveItemStackTo(stack, 7, 8, false);
             } else {
-                // Tenta gli slot input (0–2)
-                moved = this.moveItemStackTo(stack, 0, 3, false);
+                // Tenta gli slot input (0–4)
+                moved = this.moveItemStackTo(stack, 0, 5, false);
             }
 
             if (!moved) {
                 // Fallback: sposta tra inventario principale e hotbar
-                if (index < 33) {
-                    if (!this.moveItemStackTo(stack, 33, 42, false)) {
+                if (index < 35) {
+                    if (!this.moveItemStackTo(stack, 35, 44, false))
                         return ItemStack.EMPTY;
-                    }
                 } else {
-                    if (!this.moveItemStackTo(stack, 6, 33, false)) {
+                    if (!this.moveItemStackTo(stack, 8, 35, false))
                         return ItemStack.EMPTY;
-                    }
                 }
             }
         }
@@ -205,7 +211,6 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
                 blockEntity.getBlockState().getBlock());
     }
 
-    // Esposto per il costruttore client del dummy
     public ContainerData getData() {
         return data;
     }
