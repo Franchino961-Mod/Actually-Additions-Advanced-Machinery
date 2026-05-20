@@ -44,15 +44,20 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     }
 
     // -------------------------------------------------------------------
-    // Inventory layout (9 slot):
-    // 0 – Input centro-alto (croce: top)
-    // 1 – Input sinistra (croce: left)
-    // 2 – Input centro (croce: center)
-    // 3 – Input destra (croce: right)
-    // 4 – Input centro-basso (croce: bottom)
+    // Inventory layout (8 slot):
+    // 0 – Input base (croce: center — passato come "base" a matches())
+    // 1 – Input modifier 1 (croce: top)
+    // 2 – Input modifier 2 (croce: left)
+    // 3 – Input modifier 3 (croce: right)
+    // 4 – Input modifier 4 (croce: bottom)
     // 5 – Output (read-only)
     // 6 – Speed Upgrade (max 4)
     // 7 – Efficiency Upgrade (max 4)
+    //
+    // NOTA: EmpowererRecipe.matches(base, m1, m2, m3, m4) richiede
+    // esattamente 1 base + 4 modifier, tutti non-empty.
+    // Slot 0 = base, slot 1-4 = modifier (AA gestisce internamente
+    // tutte le permutazioni dei modifier).
     // -------------------------------------------------------------------
     private final ItemStackHandler inventory = new ItemStackHandler(8) {
         @Override
@@ -150,7 +155,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     // Tick
     // -------------------------------------------------------------------
     public void tick(Level level, BlockPos pos, BlockState state) {
-        if (level.isClientSide)
+        if (level == null || level.isClientSide)
             return;
 
         Optional<RecipeHolder<EmpowererRecipe>> recipeOpt = getRecipe();
@@ -185,9 +190,10 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     }
 
     // -------------------------------------------------------------------
-    // Recipe matching — usa tutti e 5 gli slot input
-    // L'EmpowererRecipe di AA accetta: input base + 4 modifier
-    // Slot 0 = base, slot 1-4 = modifier (in qualsiasi ordine)
+    // Recipe matching
+    // Slot 0 = base, slot 1-4 = modifier (AA gestisce le permutazioni)
+    // matches() richiede tutti e 4 i modifier non-empty → se uno slot è
+    // vuoto la ricetta non matcha (comportamento corretto).
     // -------------------------------------------------------------------
     private Optional<RecipeHolder<EmpowererRecipe>> getRecipe() {
         if (level == null)
@@ -222,7 +228,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         ItemStack result = recipe.getOutput().copy();
         ItemStack currentOut = inventory.getStackInSlot(5);
 
-        // Consuma tutti e 5 gli slot input
+        // Consuma base (slot 0) + tutti e 4 i modifier (slot 1-4)
         for (int i = 0; i < 5; i++) {
             inventory.extractItem(i, 1, false);
         }
