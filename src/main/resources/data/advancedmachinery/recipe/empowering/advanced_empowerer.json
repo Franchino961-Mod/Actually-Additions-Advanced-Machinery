@@ -1,0 +1,27 @@
+{
+  "type": "actuallyadditions:empowering",
+  "base": {
+    "item": "actuallyadditions:empowerer"
+  },
+  "color": 16744192,
+  "energy": 100000,
+  "modifiers": [
+    {
+      "item": "actuallyadditions:advanced_coil"
+    },
+    {
+      "item": "actuallyadditions:advanced_coil"
+    },
+    {
+      "item": "actuallyadditions:display_stand"
+    },
+    {
+      "item": "actuallyadditions:display_stand"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "advancedmachinery:advanced_empowerer"
+  },
+  "time": 300
+}
