@@ -15,39 +15,39 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
             AdvancedMachinery.MODID, "textures/gui/advanced_empowerer.png");
 
-    // GUI dimensions — 5 righe macchina + gap + inventario player
-    private static final int GUI_WIDTH  = 176;
+    private static final int GUI_WIDTH = 176;
     private static final int GUI_HEIGHT = 204;
 
-    // Progress arrow: tra Centro (44,54) e Output (116,54)
-    private static final int ARROW_X      = 62;  // bordo sinistro freccia
-    private static final int ARROW_Y      = 56;  // top (allineata allo slot y=54)
-    private static final int ARROW_WIDTH  = 50;  // larghezza massima
+    // Freccia di progresso: da destra del centro (slot 2 @ x=44, largh 16 → bordo
+    // dx = 60)
+    // verso sinistra dell'output (slot 5 @ x=116) → spazio = 56px, freccia 50px
+    // centrata
+    private static final int ARROW_X = 62; // bordo sinistro freccia (60+2 padding)
+    private static final int ARROW_Y = 56; // allineata verticalmente agli slot y=54
+    private static final int ARROW_WIDTH = 50;
     private static final int ARROW_HEIGHT = 14;
-    private static final int ARROW_U      = 176;
-    private static final int ARROW_V      = 0;
+    private static final int ARROW_U = 176;
+    private static final int ARROW_V = 0;
 
-    // Energy bar: colonna 8 intera (x=152, righe 0-4, totale 90px)
-    private static final int ENERGY_X      = 152;
-    private static final int ENERGY_Y_TOP  = 18;
+    // Energy bar: colonna destra (x=152)
+    private static final int ENERGY_X = 152;
+    private static final int ENERGY_Y_TOP = 18;
     private static final int ENERGY_HEIGHT = 90;
-    private static final int ENERGY_WIDTH  = 16;
-    private static final int ENERGY_U      = 176;
-    private static final int ENERGY_V      = 17;
+    private static final int ENERGY_WIDTH = 16;
+    private static final int ENERGY_U = 176;
+    private static final int ENERGY_V = 17;
 
     public AdvancedEmpowererScreen(AdvancedEmpowererMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        this.imageWidth  = GUI_WIDTH;
+        this.imageWidth = GUI_WIDTH;
         this.imageHeight = GUI_HEIGHT;
         this.inventoryLabelX = 8;
-        this.inventoryLabelY = 112; // 10px sopra y=122 (inizio inventario player)
+        this.inventoryLabelY = 112;
     }
-
 
     @Override
     protected void init() {
         super.init();
-        // Forza l'altezza della GUI dopo che AbstractContainerScreen la inizializza
         this.imageHeight = GUI_HEIGHT;
     }
 
@@ -57,16 +57,12 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
-        // Draw base GUI background
         guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
 
         renderProgressArrow(guiGraphics, leftPos, topPos);
         renderEnergyBar(guiGraphics, leftPos, topPos);
     }
 
-    /**
-     * Renders the progress arrow, filling left-to-right proportionally to progress.
-     */
     private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
         if (menu.getMaxProgress() <= 0)
             return;
@@ -74,37 +70,31 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
         if (filled <= 0)
             return;
         guiGraphics.blit(TEXTURE,
-                x + ARROW_X, y + ARROW_Y, // destination on screen
-                ARROW_U, ARROW_V, // source UV in texture
-                filled, ARROW_HEIGHT); // width/height to draw
+                x + ARROW_X, y + ARROW_Y,
+                ARROW_U, ARROW_V,
+                filled, ARROW_HEIGHT);
     }
 
-    /**
-     * Renders the energy bar, filling bottom-to-top proportionally to stored
-     * energy.
-     */
     private void renderEnergyBar(GuiGraphics guiGraphics, int x, int y) {
         if (menu.getMaxEnergy() <= 0)
             return;
         int filled = (int) ((float) menu.getEnergy() / menu.getMaxEnergy() * ENERGY_HEIGHT);
         if (filled <= 0)
             return;
-        int yOffset = ENERGY_HEIGHT - filled; // how many pixels from top are empty
+        int yOffset = ENERGY_HEIGHT - filled;
         guiGraphics.blit(TEXTURE,
-                x + ENERGY_X, y + ENERGY_Y_TOP + yOffset, // destination
-                ENERGY_U, ENERGY_V + yOffset, // source UV (shift down to match)
+                x + ENERGY_X, y + ENERGY_Y_TOP + yOffset,
+                ENERGY_U, ENERGY_V + yOffset,
                 ENERGY_WIDTH, filled);
     }
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // Title centered, white
         int titleWidth = this.font.width(this.title);
         guiGraphics.drawString(this.font, this.title,
                 (this.imageWidth - titleWidth) / 2,
                 this.titleLabelY,
                 0xFFFFFF, false);
-        // "Inventory" label suppressed (clean look)
     }
 
     @Override
@@ -115,7 +105,6 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
         renderEnergyTooltip(guiGraphics, mouseX, mouseY);
     }
 
-    /** Shows "X / Y FE" tooltip when hovering the energy bar. */
     private void renderEnergyTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
