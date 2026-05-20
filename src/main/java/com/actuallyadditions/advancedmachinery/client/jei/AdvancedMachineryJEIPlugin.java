@@ -15,9 +15,10 @@ import net.minecraft.resources.ResourceLocation;
 public class AdvancedMachineryJEIPlugin implements IModPlugin {
     private static final ResourceLocation ID = ResourceLocation.parse(AdvancedMachinery.MODID + ":jei_plugin");
 
-    // "empowering" è l'ID usato da AA 1.3.1 (corrisponde a ActuallyRecipes.Types.EMPOWERING)
-    private static final RecipeType<Object> TYPE_EMPOWERING =
-            RecipeType.create("actuallyadditions", "empowering", Object.class);
+    // "empowering" è l'ID usato da AA (corrisponde a
+    // ActuallyRecipes.Types.EMPOWERING)
+    private static final RecipeType<Object> TYPE_EMPOWERING = RecipeType.create("actuallyadditions", "empowering",
+            Object.class);
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -33,10 +34,13 @@ public class AdvancedMachineryJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+        // Slot macchina: 8 slot totali (indici 0–7: 5 input, 1 output, 2 upgrade)
+        // Inventario player: 36 slot (indici 8–43: 27 main + 9 hotbar)
         registration.addRecipeTransferHandler(
                 AdvancedEmpowererMenu.class,
                 ModMenuTypes.ADVANCED_EMPOWERER.get(),
                 TYPE_EMPOWERING,
-                0, 5, 8, 36);
+                0, 8, // slot macchina: da indice 0, count 8
+                8, 36); // inventario player: da indice 8, count 36
     }
 }
