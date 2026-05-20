@@ -95,8 +95,7 @@ public class AdvancedEmpowererBlock extends BaseEntityBlock {
             if (be instanceof AdvancedEmpowererBlockEntity empowerer) {
                 ItemStackHandler inv = empowerer.getInventory();
                 for (int i = 0; i < inv.getSlots(); i++) {
-                    // Non droppare slot 3 e 4 (sempre vuoti per design)
-                    // ma droppare tutto il resto per sicurezza
+                    // Tutti gli slot (0-7) vengono droppati correttamente
                     ItemStack stack = inv.getStackInSlot(i);
                     if (!stack.isEmpty()) {
                         Containers.dropItemStack(
