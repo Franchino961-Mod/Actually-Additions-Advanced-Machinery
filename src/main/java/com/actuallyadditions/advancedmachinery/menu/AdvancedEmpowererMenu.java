@@ -13,9 +13,9 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class AdvancedEmpowererMenu extends AbstractContainerMenu {
@@ -32,7 +32,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
     // 3 = maxEnergy
     // -----------------------------------------------------------------------
 
-    // Costruttore SERVER
+    // Costruttore SERVER (chiamato da BlockEntity.createMenu)
     public AdvancedEmpowererMenu(int containerId, Inventory playerInventory,
             AdvancedEmpowererBlockEntity blockEntity, ContainerData data) {
         super(ModMenuTypes.ADVANCED_EMPOWERER.get(), containerId);
@@ -46,7 +46,9 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    // Costruttore CLIENT
+    // Costruttore CLIENT (chiamato dal network)
+    // Usa un handler dummy vuoto se la BlockEntity non è ancora disponibile,
+    // evitando di istanziare una BlockEntity con AIR come blockstate.
     public AdvancedEmpowererMenu(int containerId, Inventory playerInventory,
             net.minecraft.network.FriendlyByteBuf buf) {
         super(ModMenuTypes.ADVANCED_EMPOWERER.get(), containerId);
@@ -58,13 +60,15 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
         if (be instanceof AdvancedEmpowererBlockEntity emp) {
             this.blockEntity = emp;
             this.data = emp.getContainerData();
+            addBlockEntitySlots(emp.getInventory());
         } else {
-            this.blockEntity = new AdvancedEmpowererBlockEntity(pos,
-                    Blocks.AIR.defaultBlockState());
+            // Race condition o chunk non caricato: usa handler/data dummy
+            // Non istanziamo una BlockEntity fasulla — solo strutture leggere
+            this.blockEntity = null;
             this.data = new SimpleContainerData(4);
+            addBlockEntitySlots(new ItemStackHandler(8));
         }
 
-        addBlockEntitySlots(this.blockEntity.getInventory());
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
         addDataSlots(this.data);
@@ -76,7 +80,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
     // Indice Inv Posizione Ruolo
     // 0 0 (44, 18) Input 0 – centro-alto (croce: top)
     // 1 1 ( 8, 54) Input 1 – sinistra (croce: left)
-    // 2 2 (44, 54) Input 2 – centro (croce: center)
+    // 2 2 (44, 54) Input 2 – centro (croce: center / base)
     // 3 3 (80, 54) Input 3 – destra (croce: right)
     // 4 4 (44, 90) Input 4 – centro-basso (croce: bottom)
     // 5 5 (116, 54) Output (read-only, bordo dorato)
@@ -142,9 +146,9 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
 
     // -----------------------------------------------------------------------
     // Shift+Click
-    // Slot macchina: 0–7 (0–4 input, 5 output, 6–7 upgrade)
-    // Inventario player: 8–34
-    // Hotbar player: 35–43
+    // Slot macchina : 0–7 (0–4 input, 5 output, 6–7 upgrade)
+    // Inventario : 8–34
+    // Hotbar : 35–43
     // -----------------------------------------------------------------------
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
@@ -205,6 +209,9 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
+        // Se blockEntity è null (costruttore client dummy) la GUI non è valida
+        if (this.blockEntity == null)
+            return false;
         return stillValid(
                 ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
                 player,
