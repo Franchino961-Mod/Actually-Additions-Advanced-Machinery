@@ -160,16 +160,27 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
 
         } else {
             // Dall'inventario/hotbar → tenta lo slot corretto in macchina
+            boolean moved = false;
             if (stack.getItem() == ModItems.SPEED_UPGRADE.get()) {
-                if (!this.moveItemStackTo(stack, 4, 5, false))
-                    return ItemStack.EMPTY;
+                moved = this.moveItemStackTo(stack, 4, 5, false);
             } else if (stack.getItem() == ModItems.EFFICIENCY_UPGRADE.get()) {
-                if (!this.moveItemStackTo(stack, 5, 6, false))
-                    return ItemStack.EMPTY;
+                moved = this.moveItemStackTo(stack, 5, 6, false);
             } else {
                 // Tenta gli slot input (0–2)
-                if (!this.moveItemStackTo(stack, 0, 3, false))
-                    return ItemStack.EMPTY;
+                moved = this.moveItemStackTo(stack, 0, 3, false);
+            }
+
+            if (!moved) {
+                // Fallback: sposta tra inventario principale e hotbar
+                if (index < 33) {
+                    if (!this.moveItemStackTo(stack, 33, 42, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else {
+                    if (!this.moveItemStackTo(stack, 6, 33, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                }
             }
         }
 
