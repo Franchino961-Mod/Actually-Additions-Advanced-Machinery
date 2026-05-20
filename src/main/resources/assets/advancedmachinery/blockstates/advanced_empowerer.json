@@ -1,5 +1,19 @@
 {
   "variants": {
-    "": { "model": "advancedmachinery:block/advanced_empowerer" }
+    "facing=north": {
+      "model": "advancedmachinery:block/advanced_empowerer"
+    },
+    "facing=south": {
+      "model": "advancedmachinery:block/advanced_empowerer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "advancedmachinery:block/advanced_empowerer",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "advancedmachinery:block/advanced_empowerer",
+      "y": 90
+    }
   }
 }
