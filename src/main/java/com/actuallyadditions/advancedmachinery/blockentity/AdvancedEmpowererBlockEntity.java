@@ -45,18 +45,18 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
     // -------------------------------------------------------------------
     // Inventory layout (8 slot):
-    // 0 – Input base (croce: center — passato come "base" a matches())
-    // 1 – Input modifier 1 (croce: top)
-    // 2 – Input modifier 2 (croce: left)
-    // 3 – Input modifier 3 (croce: right)
-    // 4 – Input modifier 4 (croce: bottom)
+    // 0 – Input modifier 1 (croce: top     — coordinata GUI: 44, 24)
+    // 1 – Input modifier 2 (croce: left    — coordinata GUI: 14, 54)
+    // 2 – Input BASE       (croce: center  — coordinata GUI: 44, 54)
+    // 3 – Input modifier 3 (croce: right   — coordinata GUI: 74, 54)
+    // 4 – Input modifier 4 (croce: bottom  — coordinata GUI: 44, 84)
     // 5 – Output (read-only)
     // 6 – Speed Upgrade (max 4)
     // 7 – Efficiency Upgrade (max 4)
     //
     // NOTA: EmpowererRecipe.matches(base, m1, m2, m3, m4) richiede
     // esattamente 1 base + 4 modifier, tutti non-empty.
-    // Slot 0 = base, slot 1-4 = modifier (AA gestisce internamente
+    // Slot 2 = base, slot 0,1,3,4 = modifier (AA gestisce internamente
     // tutte le permutazioni dei modifier).
     // -------------------------------------------------------------------
     private final ItemStackHandler inventory = new ItemStackHandler(8) {
@@ -191,7 +191,8 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
     // -------------------------------------------------------------------
     // Recipe matching
-    // Slot 0 = base, slot 1-4 = modifier (AA gestisce le permutazioni)
+    // Slot 2 = base (centro), slot 0,1,3,4 = modifier
+    // Il layout rispecchia esattamente la GUI: center = base item.
     // matches() richiede tutti e 4 i modifier non-empty → se uno slot è
     // vuoto la ricetta non matcha (comportamento corretto).
     // -------------------------------------------------------------------
@@ -200,11 +201,11 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
             return Optional.empty();
 
         if (recipeDirty || cachedRecipe == null) {
-            ItemStack base = inventory.getStackInSlot(0);
-            ItemStack m1 = inventory.getStackInSlot(1);
-            ItemStack m2 = inventory.getStackInSlot(2);
-            ItemStack m3 = inventory.getStackInSlot(3);
-            ItemStack m4 = inventory.getStackInSlot(4);
+            ItemStack base = inventory.getStackInSlot(2); // center slot
+            ItemStack m1   = inventory.getStackInSlot(0); // top
+            ItemStack m2   = inventory.getStackInSlot(1); // left
+            ItemStack m3   = inventory.getStackInSlot(3); // right
+            ItemStack m4   = inventory.getStackInSlot(4); // bottom
 
             cachedRecipe = level.getRecipeManager()
                     .getAllRecipesFor(ActuallyRecipes.Types.EMPOWERING.get())
@@ -228,7 +229,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         ItemStack result = recipe.getOutput().copy();
         ItemStack currentOut = inventory.getStackInSlot(5);
 
-        // Consuma base (slot 0) + tutti e 4 i modifier (slot 1-4)
+        // Consuma base (slot 2) + tutti e 4 i modifier (slot 0,1,3,4)
         for (int i = 0; i < 5; i++) {
             inventory.extractItem(i, 1, false);
         }
