@@ -72,8 +72,8 @@ runs/
 run-*/
 .run/
 .minecraft/
-server/
-client/
+/server/
+/client/
 !src/client/
 !src/client/**
 world/
