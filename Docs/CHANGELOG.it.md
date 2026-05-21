@@ -1,0 +1,135 @@
+# Changelog - Advanced Machinery
+
+Tutte le modifiche rilevanti alla mod **Advanced Machinery** verranno documentate in questo file.
+
+Il formato si basa su [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [0.6.1] - Fix Coordinate Slot
+### Corretto
+- **Coordinate Slot**: Corrette le posizioni degli slot nella GUI per tutti gli slot di input e per lo slot di output, in modo che corrispondano correttamente al layout della texture definitiva.
+
+---
+
+## [0.6.0] - Finalizzazione GUI, Ricetta Crafting e JEI
+### Aggiunto
+- **Ricetta Crafting per Advanced Empowerer**: Aggiunta la ricetta di crafting in-game per ottenere il blocco Advanced Empowerer.
+- **Texture GUI Definitiva**: Aggiunta la texture grafica definitiva per la schermata dell'Advanced Empowerer.
+- **Registrazione come Catalizzatore JEI**: Il blocco Advanced Empowerer è ora registrato come catalizzatore di ricette in JEI.
+- **Trasferimento Ricette JEI**: Supporto al trasferimento Shift+Click delle ricette da JEI alla GUI dell'Advanced Empowerer.
+
+---
+
+## [0.5.2] - Fix Range Slot JEI
+### Corretto
+- **Range Slot Trasferimento JEI**: Aggiornato il gestore di trasferimento ricette per fare riferimento correttamente a tutti gli 8 slot della macchina e ai 36 slot dell'inventario del giocatore, a seguito della modifica al layout a 5 slot di input introdotta nella 0.5.0.
+
+---
+
+## [0.5.1] - Pulizia Codice e Fix Minori
+### Corretto
+- **Controllo Null su `level`**: Aggiunto un controllo null per `level` nel metodo tick della block entity per prevenire potenziali NullPointerException.
+
+### Modificato
+- **Menu Client-Side Leggero**: Il costruttore lato client del menu usa ora un `ItemStackHandler` dummy leggero invece di un'istanza completa di `BlockEntity`, prevenendo crash in caso di race condition o chunk non ancora caricati. Il metodo `stillValid` restituisce ora `false` quando la block entity non è disponibile.
+
+### Refactoring
+- Pulizia di commenti e formattazione in `AdvancedEmpowererScreen`.
+- Aggiornato il commento al drop dell'inventario in `AdvancedEmpowererBlock` per rispecchiare il range corretto degli slot.
+- Affinati i commenti ai ruoli degli slot e rimossi appunti obsoleti in `AdvancedEmpowererBlockEntity`.
+
+---
+
+## [0.5.0] - Layout Input a 5 Slot e Refactor Asset
+### Aggiunto
+- **Supporto 5 Slot Input (BlockEntity)**: L'Advanced Empowerer supporta ora 1 slot base + 4 slot modifier, abilitando tutte le ricette standard dell'Empowerer di Actually Additions.
+- **Supporto 5 Slot Input (Menu)**: Aggiornato il layout del container per rispecchiare il nuovo schema di input a croce con 5 slot (alto, sinistra, centro, destra, basso).
+- **Varianti Direzionali Blockstate**: Aggiunte le varianti `facing` (nord, sud, est, ovest) alla definizione del blockstate dell'Advanced Empowerer.
+
+### Modificato
+- **Modello Blocco Ristrutturato**: Riorganizzati gli elementi e i gruppi del modello 3D del blocco per correttezza e coerenza visiva.
+
+### Corretto
+- **Fallback quickMoveStack**: Aggiunto un fallback per lo Shift+Click tra l'inventario principale e la hotbar del giocatore quando nessun slot della macchina accetta l'oggetto.
+
+### Rimosso
+- **Texture GUI Non Utilizzate**: Rimosse `advanced_empowerer_2.png` e `advanced_empowerer_3.png` (texture intermedie non più necessarie).
+
+---
+
+## [0.4.1] - Pulizia Build e Codice
+### Modificato
+- **Configurazione Build**: Aggiunta la proprietà `archives_base_name` e riorganizzate le sezioni di `gradle.properties` per maggiore chiarezza.
+
+### Refactoring
+- Rimossa la registrazione della schermata menu lato client dalla classe principale della mod (spostata in un event handler client dedicato).
+- Sostituiti i nomi di classe completamente qualificati con import statici appropriati in `AdvancedEmpowererBlock`.
+
+---
+
+## [0.4.0] - Miglioramenti alla Logica e ai Contenuti
+### Aggiunto
+- **Proprietà di Orientamento Orizzontale**: Il blocco Advanced Empowerer ruota ora per essere rivolto verso il giocatore al momento del piazzamento.
+- **Drop Inventario alla Rottura**: Tutti i contenuti dell'inventario (input, output, upgrade) vengono ora rilasciati correttamente nel mondo quando il blocco viene rotto.
+- **Sopravvivenza alle Esplosioni**: Aggiunta una condizione di sopravvivenza alle esplosioni alla loot table dell'Advanced Empowerer, in modo che gli oggetti non vengano distrutti.
+- **Localizzazione Italiana**: Aggiunta la traduzione italiana completa per tutti gli oggetti, blocchi ed etichette GUI della mod.
+- **Ricetta Crafting Speed Upgrade**: Aggiunta la ricetta di crafting in-game per ottenere l'oggetto Speed Upgrade.
+- **Ricetta Crafting Efficiency Upgrade**: Aggiunta la ricetta di crafting in-game per ottenere l'oggetto Efficiency Upgrade.
+
+### Modificato
+- **Miglioramento Energy Storage**: Migliorato il comportamento di `MutableEnergyStorage` e la sua sincronizzazione con il client nella block entity.
+- **Layout Inventario Affinato**: Aggiustato il numero di slot e i ruoli degli slot nella block entity per maggiore chiarezza.
+- **Costruttori Menu Migliorati**: Refactoring dei costruttori server e client in `AdvancedEmpowererMenu` per una migliore separazione delle responsabilità e una gestione degli slot più robusta.
+
+---
+
+## [0.3.1] - Documentazione e Pulizia Repository
+### Aggiunto
+- **Licenza MIT**: Aggiunto il file `LICENSE` al repository.
+- **README**: Aggiunto il file `README.md` iniziale.
+- **CHANGELOG**: Aggiunto il file `CHANGELOG` iniziale.
+
+### Refactoring
+- Riorganizzato e aggiornato il file `.gitignore` per una migliore copertura degli artefatti Java, Gradle e NeoForge.
+- Riorganizzato `gradle.properties` per maggiore chiarezza e coerenza.
+
+---
+
+## [0.3.0] - Asset e Dati
+### Aggiunto
+- **Texture Blocco**: Aggiunte le texture per la faccia superiore, i lati e la faccia inferiore del blocco Advanced Empowerer.
+- **Texture GUI**: Aggiunta la texture di sfondo iniziale per la schermata dell'Advanced Empowerer.
+- **Texture Oggetti**: Aggiunte le texture per gli oggetti Speed Upgrade e Efficiency Upgrade.
+- **Modello Blocco**: Aggiunta la definizione iniziale del modello 3D del blocco con culling delle facce corretto.
+- **Definizione Blockstate**: Aggiunta la mappatura iniziale del modello nel blockstate.
+- **Mappature Modello Oggetti**: Aggiunte le definizioni del modello per gli oggetti Advanced Empowerer, Speed Upgrade e Efficiency Upgrade.
+- **Traduzioni Inglesi**: Aggiunte tutte le stringhe di traduzione in inglese (`en_us.json`).
+- **Icona della Mod**: Aggiunta l'immagine dell'icona della mod.
+- **Loot Table**: Aggiunta la loot table del blocco per l'Advanced Empowerer.
+- **Ricetta Crafting (Dati)**: Aggiunta la ricetta di crafting iniziale basata su dati per l'Advanced Empowerer.
+- **Metadati Resource Pack**: Aggiunto `pack.mcmeta` per il resource pack.
+
+---
+
+## [0.2.0] - Implementazione Core
+### Aggiunto
+- **`AdvancedEmpowererBlock`**: Classe blocco con interazione base al clic destro per aprire la GUI e un ticker per la block entity.
+- **`AdvancedEmpowererBlockEntity`**: Implementazione completa della block entity, inclusa la gestione dell'inventario, l'accumulo di energia, il matching delle ricette (tramite `EmpowererRecipe`) e la logica di elaborazione delle ricette.
+- **`AdvancedEmpowererMenu`**: Implementazione del menu container con costruttori lato server e lato client, layout degli slot e logica `quickMoveStack` (Shift+Click).
+- **`AdvancedEmpowererScreen`**: Implementazione della schermata GUI con il rendering della texture di sfondo, della freccia di progresso, della barra dell'energia e del tooltip sull'energia.
+- **Plugin JEI**: Aggiunto `AdvancedMachineryJEIPlugin` per l'integrazione JEI iniziale.
+- **Registrazione**: Registrati la block entity, il tipo di menu, gli oggetti Speed Upgrade e Efficiency Upgrade, i block item e la scheda della modalità creativa.
+- **Classe Principale**: Registrata la schermata GUI dell'Advanced Empowerer dalla classe principale della mod.
+
+---
+
+## [0.1.0] - Configurazione del Progetto
+### Aggiunto
+- **Sistema di Build Gradle**: Configurato il wrapper Gradle, il nome del progetto, il plugin NeoForge ModDev e tutte le dipendenze necessarie (NeoForge, Actually Additions, JEI).
+- **`.gitignore`**: Aggiunto il file `.gitignore` configurato per progetti Java, Gradle e NeoForge.
+- **`.gitattributes`**: Aggiunto il file `.gitattributes` per la gestione coerente dei fine riga tra diverse piattaforme.
+- **`mods.toml`**: Aggiunta la configurazione dei metadati della mod per NeoForge (`neoforge.mods.toml`).
+- **`gradle.properties`**: Aggiunte e organizzate tutte le proprietà del progetto (ID mod, versione, versione Minecraft, versioni dipendenze).
+- **Commit Iniziale**: Creata la struttura base del progetto.
