@@ -1,0 +1,135 @@
+# Changelog - Advanced Machinery
+
+All notable changes to the **Advanced Machinery** mod will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [0.6.1] - Slot Coordinate Fix
+### Fixed
+- **Slot Coordinates**: Corrected the GUI slot positions for all input slots and the output slot to correctly match the final texture layout.
+
+---
+
+## [0.6.0] - GUI, Crafting Recipe & JEI Finalization
+### Added
+- **Crafting Recipe for Advanced Empowerer**: Added the in-game crafting recipe to obtain the Advanced Empowerer block.
+- **Final GUI Texture**: Added the definitive GUI texture for the Advanced Empowerer screen.
+- **JEI Catalyst Registration**: The Advanced Empowerer block is now registered as a recipe catalyst in JEI.
+- **JEI Recipe Transfer**: Support for Shift+Click recipe transfer from JEI to the Advanced Empowerer GUI.
+
+---
+
+## [0.5.2] - JEI Slot Range Fix
+### Fixed
+- **JEI Transfer Slot Ranges**: Updated the recipe transfer handler to correctly reference all 8 machine slots and 36 player inventory slots, following the 5-slot input layout introduced in 0.5.0.
+
+---
+
+## [0.5.1] - Code Style & Minor Fixes
+### Fixed
+- **Level Null Check**: Added a null check for `level` in the block entity tick method to prevent potential NullPointerException.
+
+### Changed
+- **Lightweight Client-Side Menu**: The client-side menu constructor now uses a lightweight `ItemStackHandler` dummy instead of a full `BlockEntity` instance, preventing crashes during race conditions or unloaded chunks. The `stillValid` method now returns `false` when the block entity is unavailable.
+
+### Refactored
+- Cleaned up comments and formatting in `AdvancedEmpowererScreen`.
+- Updated inventory drop comment in `AdvancedEmpowererBlock` to reflect the correct slot range.
+- Refined slot role comments and removed outdated notes in `AdvancedEmpowererBlockEntity`.
+
+---
+
+## [0.5.0] - 5-Slot Input Layout & Asset Refactor
+### Added
+- **5-Slot Input Support (BlockEntity)**: The Advanced Empowerer now supports 1 base input + 4 modifier inputs, enabling all standard Actually Additions Empowerer recipes.
+- **5-Slot Input Support (Menu)**: Updated the container layout to reflect the new cross-shaped 5-slot input arrangement (top, left, center, right, bottom).
+- **Directional Blockstate**: Added `facing` variants (north, south, east, west) to the Advanced Empowerer blockstate definition.
+
+### Changed
+- **Block Model Restructured**: Reorganized block model elements and groups for correctness and visual consistency.
+
+### Fixed
+- **quickMoveStack Fallback**: Added a fallback for Shift+Click between the player inventory and hotbar when no machine slot accepts the item.
+
+### Removed
+- **Unused GUI Textures**: Removed `advanced_empowerer_2.png` and `advanced_empowerer_3.png` (unused intermediate textures).
+
+---
+
+## [0.4.1] - Build & Code Cleanup
+### Changed
+- **Build Configuration**: Added `archives_base_name` property and reorganized `gradle.properties` sections for clarity.
+
+### Refactored
+- Removed client-side menu screen registration from the main mod class (moved to a dedicated client event handler).
+- Replaced fully qualified class names with proper static imports in `AdvancedEmpowererBlock`.
+
+---
+
+## [0.4.0] - Logic & Content Improvements
+### Added
+- **Horizontal Facing Property**: The Advanced Empowerer block now rotates to face the player upon placement.
+- **Inventory Drop on Break**: All inventory contents (inputs, output, upgrades) are correctly dropped into the world when the block is broken.
+- **Explosion Survival Loot**: Added an explosion survival condition to the Advanced Empowerer loot table so items are not destroyed by explosions.
+- **Italian Localization**: Added full Italian translation for all mod items, blocks, and GUI labels.
+- **Speed Upgrade Crafting Recipe**: Added the in-game crafting recipe to obtain the Speed Upgrade item.
+- **Efficiency Upgrade Crafting Recipe**: Added the in-game crafting recipe to obtain the Efficiency Upgrade item.
+
+### Changed
+- **Enhanced Energy Storage**: Improved `MutableEnergyStorage` behavior and client syncing in the block entity.
+- **Refined Inventory Layout**: Adjusted slot count and slot roles in the block entity for clarity.
+- **Improved Menu Constructors**: Refactored server and client constructors in `AdvancedEmpowererMenu` for better separation of concerns and more robust slot management.
+
+---
+
+## [0.3.1] - Docs & Repository Cleanup
+### Added
+- **MIT License**: Added the `LICENSE` file to the repository.
+- **README**: Added the initial `README.md` file.
+- **CHANGELOG**: Added the initial `CHANGELOG` file.
+
+### Refactored
+- Reorganized and updated `.gitignore` for better coverage of Java, Gradle, and NeoForge artifacts.
+- Reorganized `gradle.properties` for improved clarity and consistency.
+
+---
+
+## [0.3.0] - Assets & Data
+### Added
+- **Block Textures**: Added top, side, and bottom textures for the Advanced Empowerer block.
+- **GUI Texture**: Added the initial GUI background texture for the Advanced Empowerer screen.
+- **Item Textures**: Added textures for Speed Upgrade and Efficiency Upgrade items.
+- **Block Model**: Added the initial block model definition with correct face culling.
+- **Blockstate Definition**: Added the initial blockstate model mapping.
+- **Item Model Mappings**: Added item model definitions for the Advanced Empowerer, Speed Upgrade, and Efficiency Upgrade.
+- **English Translations**: Added all English translation strings (`en_us.json`).
+- **Mod Icon**: Added the mod icon image.
+- **Loot Table**: Added the block loot table for the Advanced Empowerer.
+- **Crafting Recipe (Data)**: Added the initial data-driven crafting recipe for the Advanced Empowerer.
+- **Resource Pack Metadata**: Added `pack.mcmeta` for the resource pack.
+
+---
+
+## [0.2.0] - Core Implementation
+### Added
+- **`AdvancedEmpowererBlock`**: Block class with basic right-click interaction to open the GUI and a ticker for the block entity.
+- **`AdvancedEmpowererBlockEntity`**: Full block entity implementation including inventory handling, energy storage, recipe matching (via `EmpowererRecipe`), and recipe processing logic.
+- **`AdvancedEmpowererMenu`**: Container menu implementation with server and client constructors, slot layout, and `quickMoveStack` (Shift+Click) logic.
+- **`AdvancedEmpowererScreen`**: GUI screen implementation with rendering for the background texture, progress arrow, energy bar, and energy tooltip.
+- **JEI Plugin**: Added `AdvancedMachineryJEIPlugin` for initial JEI integration.
+- **Registration**: Registered the Advanced Empowerer block entity, menu type, speed and efficiency upgrade items, block items, and creative mode tab.
+- **Main Class**: Registered the Advanced Empowerer GUI screen from the main mod class.
+
+---
+
+## [0.1.0] - Project Setup
+### Added
+- **Gradle Build System**: Configured Gradle wrapper, project name, NeoForge ModDev plugin, and all required dependencies (NeoForge, Actually Additions, JEI).
+- **`.gitignore`**: Added `.gitignore` configured for Java, Gradle, and NeoForge projects.
+- **`.gitattributes`**: Added `.gitattributes` for consistent line endings across platforms.
+- **`mods.toml`**: Added NeoForge mod metadata configuration (`neoforge.mods.toml`).
+- **`gradle.properties`**: Added and organized all project properties (mod ID, version, Minecraft version, dependency versions).
+- **Initial Commit**: Created the base project structure.
