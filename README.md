@@ -3,7 +3,7 @@
 A powerful addon for **Actually Additions** that introduces a fully functional, multi-block advanced version of the Empowerer — supporting all 4 modifier slots, upgrades, and a complete custom GUI.
 
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-green.svg)](https://www.minecraft.net/)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.6.1-blue.svg)]()
 [![NeoForge](https://img.shields.io/badge/NeoForge-21.1.223-orange.svg)](https://neoforged.net/)
 [![Actually Additions](https://img.shields.io/badge/Actually%20Additions-1.3.1-purple.svg)](https://www.curseforge.com/minecraft/mc-mods/actually-additions)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
