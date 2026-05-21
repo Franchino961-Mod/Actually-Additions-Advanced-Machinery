@@ -5,6 +5,7 @@ import com.actuallyadditions.advancedmachinery.menu.AdvancedEmpowererMenu;
 import com.actuallyadditions.advancedmachinery.registration.ModBlocks;
 import com.actuallyadditions.advancedmachinery.registration.ModMenuTypes;
 import de.ellpeck.actuallyadditions.mod.crafting.EmpowererRecipe;
+import de.ellpeck.actuallyadditions.mod.jei.JEIActuallyAdditionsPlugin;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.recipe.RecipeType;
@@ -16,11 +17,15 @@ import net.minecraft.resources.ResourceLocation;
 public class AdvancedMachineryJEIPlugin implements IModPlugin {
     private static final ResourceLocation ID = ResourceLocation.parse(AdvancedMachinery.MODID + ":jei_plugin");
 
-    // Usa EmpowererRecipe.class come tipo generico invece di Object.class —
-    // questo permette a JEI di collegare correttamente il catalizzatore
-    // al recipe type reale di AA e mostrare le ricette nel tooltip.
-    private static final RecipeType<EmpowererRecipe> TYPE_EMPOWERING = RecipeType.create("actuallyadditions",
-            "empowering", EmpowererRecipe.class);
+    // Usiamo la stessa istanza RecipeType registrata da AA nel suo JEI plugin.
+    // Dalla decompilazione del JAR di AA, il tipo viene creato con:
+    //   RecipeType.create("actuallyadditions", "empowerer", EmpowererRecipe.class)
+    // e viene esposto come campo pubblico statico "EMPOWERER" in JEIActuallyAdditionsPlugin.
+    // Referenziare questo campo garantisce che JEI usi lo stesso oggetto singleton
+    // e colleghi correttamente il nostro catalizzatore alle ricette di AA.
+    private static RecipeType<EmpowererRecipe> getEmpowererType() {
+        return JEIActuallyAdditionsPlugin.EMPOWERER;
+    }
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -30,11 +35,11 @@ public class AdvancedMachineryJEIPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         // Registra l'Advanced Empowerer come catalizzatore per le ricette
-        // actuallyadditions:empowering — JEI mostrerà il nostro blocco
+        // actuallyadditions:empowerer — JEI mostrerà il nostro blocco
         // nel tooltip "Can be made in:" insieme all'Empowerer classico.
         registration.addRecipeCatalyst(
                 ModBlocks.ADVANCED_EMPOWERER.get().asItem().getDefaultInstance(),
-                TYPE_EMPOWERING);
+                getEmpowererType());
     }
 
     @Override
@@ -44,7 +49,7 @@ public class AdvancedMachineryJEIPlugin implements IModPlugin {
         registration.addRecipeTransferHandler(
                 AdvancedEmpowererMenu.class,
                 ModMenuTypes.ADVANCED_EMPOWERER.get(),
-                TYPE_EMPOWERING,
+                getEmpowererType(),
                 0, 8, // slot macchina: da indice 0, count 8
                 8, 36); // inventario player: da indice 8, count 36
     }
