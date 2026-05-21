@@ -78,27 +78,27 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
     // Slot layout GUI — coordinate dalla texture advanced_empowerer.png
     //
     // Indice Inv Posizione Ruolo
-    // 0 0 (44, 18) Input 0 – centro-alto (croce: top)
-    // 1 1 ( 8, 54) Input 1 – sinistra (croce: left)
-    // 2 2 (44, 54) Input 2 – centro (croce: center / base)
-    // 3 3 (80, 54) Input 3 – destra (croce: right)
-    // 4 4 (44, 90) Input 4 – centro-basso (croce: bottom)
-    // 5 5 (116, 54) Output (read-only, bordo dorato)
-    // 6 6 (98, 90) Speed Upgrade
+    // 0 0 ( 44, 24) Input 0 – centro-alto (croce: top)
+    // 1 1 ( 14, 54) Input 1 – sinistra (croce: left)
+    // 2 2 ( 44, 54) Input 2 – centro (croce: center / base)
+    // 3 3 ( 74, 54) Input 3 – destra (croce: right)
+    // 4 4 ( 44, 84) Input 4 – centro-basso (croce: bottom)
+    // 5 5 (125, 54) Output (read-only)
+    // 6 6 ( 98, 90) Speed Upgrade
     // 7 7 (116, 90) Efficiency Upgrade
     // 8–34 – Inventario player (3×9)
     // 35–43 – Hotbar player (9)
     // -----------------------------------------------------------------------
     private void addBlockEntitySlots(IItemHandler handler) {
-        // Input a croce
-        addSlot(new SlotItemHandler(handler, 0, 44, 18)); // top
-        addSlot(new SlotItemHandler(handler, 1, 8, 54)); // left
-        addSlot(new SlotItemHandler(handler, 2, 44, 54)); // center
-        addSlot(new SlotItemHandler(handler, 3, 80, 54)); // right
-        addSlot(new SlotItemHandler(handler, 4, 44, 90)); // bottom
+        // Input a croce — coordinate dalla texture aggiornata
+        addSlot(new SlotItemHandler(handler, 0, 44, 24)); // top
+        addSlot(new SlotItemHandler(handler, 1, 14, 54)); // left
+        addSlot(new SlotItemHandler(handler, 2, 44, 54)); // center (base)
+        addSlot(new SlotItemHandler(handler, 3, 74, 54)); // right
+        addSlot(new SlotItemHandler(handler, 4, 44, 84)); // bottom
 
-        // Output — nessun inserimento manuale
-        addSlot(new SlotItemHandler(handler, 5, 116, 54) {
+        // Output — no inserimento manuale
+        addSlot(new SlotItemHandler(handler, 5, 125, 54) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false;
