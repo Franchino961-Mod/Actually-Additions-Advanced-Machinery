@@ -46,6 +46,32 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
             return (int) (ENERGY_CAPACITY * multiplier);
         }
 
+        @Override
+        public int receiveEnergy(int maxReceive, boolean simulate) {
+            if (!canReceive())
+                return 0;
+
+            int maxEnergy = getMaxEnergyStored();
+            int energyReceived = Math.min(maxEnergy - this.energy, Math.min(maxEnergy, maxReceive));
+            if (!simulate) {
+                this.energy += energyReceived;
+            }
+            return energyReceived;
+        }
+
+        @Override
+        public int extractEnergy(int maxExtract, boolean simulate) {
+            if (!canExtract())
+                return 0;
+
+            int maxEnergy = getMaxEnergyStored();
+            int energyExtracted = Math.min(this.energy, Math.min(maxEnergy, maxExtract));
+            if (!simulate) {
+                this.energy -= energyExtracted;
+            }
+            return energyExtracted;
+        }
+
         public void setStored(int amount) {
             this.energy = Math.min(Math.max(0, amount), getMaxEnergyStored());
         }
