@@ -1,6 +1,6 @@
-package com.actuallyadditions.advancedmachinery;
+package com.advancedmachinery;
 
-import com.actuallyadditions.advancedmachinery.registration.*;
+import com.advancedmachinery.registration.*;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.Capabilities;
