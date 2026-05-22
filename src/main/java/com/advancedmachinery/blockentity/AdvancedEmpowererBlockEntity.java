@@ -32,14 +32,22 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
     // -------------------------------------------------------------------
     // EnergyStorage estesa con setter diretto per il caricamento NBT
+    // e capienza dinamica scalata con gli Energy Upgrade.
     // -------------------------------------------------------------------
-    public static class MutableEnergyStorage extends EnergyStorage {
+    public class MutableEnergyStorage extends EnergyStorage {
         public MutableEnergyStorage(int capacity) {
             super(capacity);
         }
 
+        @Override
+        public int getMaxEnergyStored() {
+            int energyUpgrades = inventory.getStackInSlot(7).getCount();
+            double multiplier = Math.pow(10.0, (double) energyUpgrades / 8.0);
+            return (int) (ENERGY_CAPACITY * multiplier);
+        }
+
         public void setStored(int amount) {
-            this.energy = Math.min(Math.max(0, amount), this.capacity);
+            this.energy = Math.min(Math.max(0, amount), getMaxEnergyStored());
         }
     }
 
@@ -51,8 +59,8 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     // 3 – Input modifier 3 (croce: right   — coordinata GUI: 74, 54)
     // 4 – Input modifier 4 (croce: bottom  — coordinata GUI: 44, 84)
     // 5 – Output (read-only)
-    // 6 – Speed Upgrade (max 4)
-    // 7 – Efficiency Upgrade (max 4)
+    // 6 – Speed Upgrade (max 8)
+    // 7 – Energy Upgrade (max 8)
     //
     // NOTA: EmpowererRecipe.matches(base, m1, m2, m3, m4) richiede
     // esattamente 1 base + 4 modifier, tutti non-empty.
@@ -71,14 +79,14 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
             return switch (slot) {
                 case 5 -> false; // output – no inserimento manuale
                 case 6 -> stack.getItem() == ModItems.SPEED_UPGRADE.get();
-                case 7 -> stack.getItem() == ModItems.EFFICIENCY_UPGRADE.get();
+                case 7 -> stack.getItem() == ModItems.ENERGY_UPGRADE.get();
                 default -> true; // slot 0,1,2,3,4 → input liberi
             };
         }
 
         @Override
         public int getSlotLimit(int slot) {
-            return (slot == 6 || slot == 7) ? 4 : super.getSlotLimit(slot);
+            return (slot == 6 || slot == 7) ? 8 : super.getSlotLimit(slot);
         }
     };
 
@@ -163,8 +171,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
             EmpowererRecipe recipe = recipeOpt.get().value();
             this.maxProgress = getModifiedTime(recipe.getTime());
 
-            int energyPerTick = Math.max(1,
-                    getModifiedEnergy(recipe.getEnergyPerStand() * 4) / this.maxProgress);
+            int energyPerTick = getEnergyPerTick(recipe);
 
             if (this.energy.getEnergyStored() >= energyPerTick) {
 
@@ -247,12 +254,21 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     // -------------------------------------------------------------------
     private int getModifiedTime(int original) {
         int speed = inventory.getStackInSlot(6).getCount();
-        return Math.max(20, original - speed * 40);
+        double speedMultiplier = Math.pow(10.0, (double) speed / 8.0);
+        return Math.max(1, (int) Math.round(original / speedMultiplier));
     }
 
-    private int getModifiedEnergy(int original) {
-        int efficiency = inventory.getStackInSlot(7).getCount();
-        return Math.max(original / 4, original - efficiency * (original / 10));
+    private int getEnergyPerTick(EmpowererRecipe recipe) {
+        int speed = inventory.getStackInSlot(6).getCount();
+        int energyUpgrades = inventory.getStackInSlot(7).getCount();
+        
+        double baseEnergy = recipe.getEnergyPerStand() * 4.0;
+        double baseTime = recipe.getTime();
+        double baseUsage = baseEnergy / baseTime;
+        
+        double exponent = (2.0 * speed - energyUpgrades) / 8.0;
+        double usage = baseUsage * Math.pow(10.0, exponent);
+        return Math.max(1, (int) Math.round(usage));
     }
 
     // -------------------------------------------------------------------
