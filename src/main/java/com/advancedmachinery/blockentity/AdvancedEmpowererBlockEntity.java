@@ -41,6 +41,9 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
         @Override
         public int getMaxEnergyStored() {
+            if (level != null && level.isClientSide) {
+                return clientMaxEnergy;
+            }
             int energyUpgrades = inventory.getStackInSlot(7).getCount();
             double multiplier = Math.pow(10.0, (double) energyUpgrades / 8.0);
             return (int) (ENERGY_CAPACITY * multiplier);
@@ -73,7 +76,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         }
 
         public void setStored(int amount) {
-            this.energy = Math.min(Math.max(0, amount), getMaxEnergyStored());
+            this.energy = amount;
         }
     }
 
@@ -137,6 +140,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     protected final ContainerData data;
     private int progress = 0;
     private int maxProgress = BASE_SPEED;
+    private int clientMaxEnergy = ENERGY_CAPACITY;
 
     public AdvancedEmpowererBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ADVANCED_EMPOWERER.get(), pos, state);
@@ -166,6 +170,12 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                     case 3 -> {
                         int current = energy.getEnergyStored();
                         energy.setStored(((value & 0xFFFF) << 16) | (current & 0xFFFF));
+                    }
+                    case 4 -> {
+                        clientMaxEnergy = (clientMaxEnergy & 0xFFFF0000) | (value & 0xFFFF);
+                    }
+                    case 5 -> {
+                        clientMaxEnergy = ((value & 0xFFFF) << 16) | (clientMaxEnergy & 0xFFFF);
                     }
                 }
             }
