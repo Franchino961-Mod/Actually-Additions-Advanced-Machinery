@@ -1,9 +1,9 @@
 {
     "block.advancedmachinery.advanced_empowerer": "Potenziatore Avanzato",
     "item.advancedmachinery.speed_upgrade": "Upgrade Velocità",
-    "item.advancedmachinery.efficiency_upgrade": "Upgrade Efficienza",
-    "itemGroup.advancedmachinery.main": "Advanced Machinery",
+    "item.advancedmachinery.energy_upgrade": "Upgrade Energia",
+    "itemGroup.advancedmachinery": "Advanced Machinery",
     "container.advancedmachinery.advanced_empowerer": "Potenziatore Avanzato",
     "tooltip.advancedmachinery.speed_upgrade": "Riduce il tempo di lavorazione.",
-    "tooltip.advancedmachinery.efficiency_upgrade": "Riduce il consumo energetico."
+    "tooltip.advancedmachinery.energy_upgrade": "Riduce il consumo energetico e aumenta la capienza del buffer."
 }
