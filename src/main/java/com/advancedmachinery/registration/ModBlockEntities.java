@@ -1,7 +1,7 @@
-package com.actuallyadditions.advancedmachinery.registration;
+package com.advancedmachinery.registration;
 
-import com.actuallyadditions.advancedmachinery.AdvancedMachinery;
-import com.actuallyadditions.advancedmachinery.blockentity.AdvancedEmpowererBlockEntity;
+import com.advancedmachinery.AdvancedMachinery;
+import com.advancedmachinery.blockentity.AdvancedEmpowererBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
