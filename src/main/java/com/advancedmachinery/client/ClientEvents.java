@@ -1,7 +1,7 @@
-package com.actuallyadditions.advancedmachinery.client;
+package com.advancedmachinery.client;
 
-import com.actuallyadditions.advancedmachinery.AdvancedMachinery;
-import com.actuallyadditions.advancedmachinery.registration.ModMenuTypes;
+import com.advancedmachinery.AdvancedMachinery;
+import com.advancedmachinery.registration.ModMenuTypes;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
