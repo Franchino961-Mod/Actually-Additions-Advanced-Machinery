@@ -1,7 +1,7 @@
-package com.actuallyadditions.advancedmachinery.client;
+package com.advancedmachinery.client;
 
-import com.actuallyadditions.advancedmachinery.AdvancedMachinery;
-import com.actuallyadditions.advancedmachinery.menu.AdvancedEmpowererMenu;
+import com.advancedmachinery.AdvancedMachinery;
+import com.advancedmachinery.menu.AdvancedEmpowererMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
