@@ -1,6 +1,6 @@
-package com.actuallyadditions.advancedmachinery.registration;
+package com.advancedmachinery.registration;
 
-import com.actuallyadditions.advancedmachinery.AdvancedMachinery;
+import com.advancedmachinery.AdvancedMachinery;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
