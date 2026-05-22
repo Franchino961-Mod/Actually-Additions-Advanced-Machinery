@@ -1,6 +1,9 @@
 {
   "block.advancedmachinery.advanced_empowerer": "Advanced Empowerer",
   "item.advancedmachinery.speed_upgrade": "Speed Upgrade",
-  "item.advancedmachinery.efficiency_upgrade": "Efficiency Upgrade",
-  "itemGroup.advancedmachinery": "Advanced Machinery"
+  "item.advancedmachinery.energy_upgrade": "Energy Upgrade",
+  "itemGroup.advancedmachinery": "Advanced Machinery",
+  "container.advancedmachinery.advanced_empowerer": "Advanced Empowerer",
+  "tooltip.advancedmachinery.speed_upgrade": "Decreases processing time.",
+  "tooltip.advancedmachinery.energy_upgrade": "Decreases energy consumption and increases energy capacity."
 }
