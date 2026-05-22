@@ -16,7 +16,7 @@ public class ModCreativeTabs {
             .displayItems((parameters, output) -> {
                 output.accept(ModItems.ADVANCED_EMPOWERER.get());
                 output.accept(ModItems.SPEED_UPGRADE.get());
-                output.accept(ModItems.EFFICIENCY_UPGRADE.get());
+                output.accept(ModItems.ENERGY_UPGRADE.get());
             })
             .build());
 }
