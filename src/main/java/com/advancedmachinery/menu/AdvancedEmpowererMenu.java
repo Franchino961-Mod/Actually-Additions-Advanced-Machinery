@@ -65,7 +65,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
             // Race condition o chunk non caricato: usa handler/data dummy
             // Non istanziamo una BlockEntity fasulla — solo strutture leggere
             this.blockEntity = null;
-            this.data = new SimpleContainerData(4);
+            this.data = new SimpleContainerData(6);
             addBlockEntitySlots(new ItemStackHandler(8));
         }
 
@@ -137,11 +137,15 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
     }
 
     public int getEnergy() {
-        return data.get(2);
+        int low = data.get(2) & 0xFFFF;
+        int high = data.get(3) & 0xFFFF;
+        return (high << 16) | low;
     }
 
     public int getMaxEnergy() {
-        return data.get(3);
+        int low = data.get(4) & 0xFFFF;
+        int high = data.get(5) & 0xFFFF;
+        return (high << 16) | low;
     }
 
     // -----------------------------------------------------------------------
