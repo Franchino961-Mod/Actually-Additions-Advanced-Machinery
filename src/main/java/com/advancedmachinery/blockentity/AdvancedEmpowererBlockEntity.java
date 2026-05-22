@@ -120,8 +120,10 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                 return switch (index) {
                     case 0 -> progress;
                     case 1 -> maxProgress;
-                    case 2 -> energy.getEnergyStored();
-                    case 3 -> energy.getMaxEnergyStored();
+                    case 2 -> energy.getEnergyStored() & 0xFFFF;
+                    case 3 -> (energy.getEnergyStored() >> 16) & 0xFFFF;
+                    case 4 -> energy.getMaxEnergyStored() & 0xFFFF;
+                    case 5 -> (energy.getMaxEnergyStored() >> 16) & 0xFFFF;
                     default -> 0;
                 };
             }
@@ -131,15 +133,20 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                 switch (index) {
                     case 0 -> progress = value;
                     case 1 -> maxProgress = value;
-                    case 2 -> energy.setStored(value);
+                    case 2 -> {
+                        int current = energy.getEnergyStored();
+                        energy.setStored((current & 0xFFFF0000) | (value & 0xFFFF));
+                    }
                     case 3 -> {
-                        /* maxEnergy è costante */ }
+                        int current = energy.getEnergyStored();
+                        energy.setStored(((value & 0xFFFF) << 16) | (current & 0xFFFF));
+                    }
                 }
             }
 
             @Override
             public int getCount() {
-                return 4;
+                return 6;
             }
         };
     }
