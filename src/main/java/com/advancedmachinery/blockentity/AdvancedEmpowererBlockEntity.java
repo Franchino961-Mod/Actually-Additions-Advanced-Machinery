@@ -82,11 +82,11 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
     // -------------------------------------------------------------------
     // Inventory layout (8 slot):
-    // 0 – Input modifier 1 (croce: top     — coordinata GUI: 44, 24)
-    // 1 – Input modifier 2 (croce: left    — coordinata GUI: 14, 54)
-    // 2 – Input BASE       (croce: center  — coordinata GUI: 44, 54)
-    // 3 – Input modifier 3 (croce: right   — coordinata GUI: 74, 54)
-    // 4 – Input modifier 4 (croce: bottom  — coordinata GUI: 44, 84)
+    // 0 – Input modifier 1 (croce: top — coordinata GUI: 44, 24)
+    // 1 – Input modifier 2 (croce: left — coordinata GUI: 14, 54)
+    // 2 – Input BASE (croce: center — coordinata GUI: 44, 54)
+    // 3 – Input modifier 3 (croce: right — coordinata GUI: 74, 54)
+    // 4 – Input modifier 4 (croce: bottom — coordinata GUI: 44, 84)
     // 5 – Output (read-only)
     // 6 – Speed Upgrade (max 8)
     // 7 – Energy Upgrade (max 8)
@@ -106,10 +106,16 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             return switch (slot) {
-                case 5 -> false; // output – no inserimento manuale
+                case 5 -> false; // output – no
+                                 // inserimento
+                                 // manuale
                 case 6 -> stack.getItem() == ModItems.SPEED_UPGRADE.get();
                 case 7 -> stack.getItem() == ModItems.ENERGY_UPGRADE.get();
-                default -> true; // slot 0,1,2,3,4 → input liberi
+                default -> true; // slot
+                                 // 0,1,2,3,4
+                                 // →
+                                 // input
+                                 // liberi
             };
         }
 
@@ -252,10 +258,10 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
         if (recipeDirty || cachedRecipe == null) {
             ItemStack base = inventory.getStackInSlot(2); // center slot
-            ItemStack m1   = inventory.getStackInSlot(0); // top
-            ItemStack m2   = inventory.getStackInSlot(1); // left
-            ItemStack m3   = inventory.getStackInSlot(3); // right
-            ItemStack m4   = inventory.getStackInSlot(4); // bottom
+            ItemStack m1 = inventory.getStackInSlot(0); // top
+            ItemStack m2 = inventory.getStackInSlot(1); // left
+            ItemStack m3 = inventory.getStackInSlot(3); // right
+            ItemStack m4 = inventory.getStackInSlot(4); // bottom
 
             cachedRecipe = level.getRecipeManager()
                     .getAllRecipesFor(ActuallyRecipes.Types.EMPOWERING.get())
@@ -304,11 +310,11 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     private int getEnergyPerTick(EmpowererRecipe recipe) {
         int speed = inventory.getStackInSlot(6).getCount();
         int energyUpgrades = inventory.getStackInSlot(7).getCount();
-        
+
         double baseEnergy = recipe.getEnergyPerStand() * 4.0;
         double baseTime = recipe.getTime();
         double baseUsage = baseEnergy / baseTime;
-        
+
         double exponent = (2.0 * speed - energyUpgrades) / 8.0;
         double usage = baseUsage * Math.pow(10.0, exponent);
         return Math.max(1, (int) Math.round(usage));
