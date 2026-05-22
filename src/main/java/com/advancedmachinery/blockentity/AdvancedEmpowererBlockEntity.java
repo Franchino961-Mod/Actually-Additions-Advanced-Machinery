@@ -1,8 +1,8 @@
-package com.actuallyadditions.advancedmachinery.blockentity;
+package com.advancedmachinery.blockentity;
 
-import com.actuallyadditions.advancedmachinery.menu.AdvancedEmpowererMenu;
-import com.actuallyadditions.advancedmachinery.registration.ModBlockEntities;
-import com.actuallyadditions.advancedmachinery.registration.ModItems;
+import com.advancedmachinery.menu.AdvancedEmpowererMenu;
+import com.advancedmachinery.registration.ModBlockEntities;
+import com.advancedmachinery.registration.ModItems;
 import de.ellpeck.actuallyadditions.mod.crafting.ActuallyRecipes;
 import de.ellpeck.actuallyadditions.mod.crafting.EmpowererRecipe;
 import net.minecraft.core.BlockPos;
