@@ -1,8 +1,8 @@
-package com.actuallyadditions.advancedmachinery.menu;
+package com.advancedmachinery.menu;
 
-import com.actuallyadditions.advancedmachinery.blockentity.AdvancedEmpowererBlockEntity;
-import com.actuallyadditions.advancedmachinery.registration.ModItems;
-import com.actuallyadditions.advancedmachinery.registration.ModMenuTypes;
+import com.advancedmachinery.blockentity.AdvancedEmpowererBlockEntity;
+import com.advancedmachinery.registration.ModItems;
+import com.advancedmachinery.registration.ModMenuTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
