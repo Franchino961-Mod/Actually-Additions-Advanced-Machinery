@@ -1,9 +1,9 @@
-package com.actuallyadditions.advancedmachinery.client.jei;
+package com.advancedmachinery.client.jei;
 
-import com.actuallyadditions.advancedmachinery.AdvancedMachinery;
-import com.actuallyadditions.advancedmachinery.menu.AdvancedEmpowererMenu;
-import com.actuallyadditions.advancedmachinery.registration.ModBlocks;
-import com.actuallyadditions.advancedmachinery.registration.ModMenuTypes;
+import com.advancedmachinery.AdvancedMachinery;
+import com.advancedmachinery.menu.AdvancedEmpowererMenu;
+import com.advancedmachinery.registration.ModBlocks;
+import com.advancedmachinery.registration.ModMenuTypes;
 import de.ellpeck.actuallyadditions.mod.crafting.EmpowererRecipe;
 import de.ellpeck.actuallyadditions.mod.jei.JEIActuallyAdditionsPlugin;
 import mezz.jei.api.IModPlugin;
