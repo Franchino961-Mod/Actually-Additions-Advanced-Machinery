@@ -1,7 +1,7 @@
-package com.actuallyadditions.advancedmachinery.block;
+package com.advancedmachinery.block;
 
-import com.actuallyadditions.advancedmachinery.blockentity.AdvancedEmpowererBlockEntity;
-import com.actuallyadditions.advancedmachinery.registration.ModBlockEntities;
+import com.advancedmachinery.blockentity.AdvancedEmpowererBlockEntity;
+import com.advancedmachinery.registration.ModBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
