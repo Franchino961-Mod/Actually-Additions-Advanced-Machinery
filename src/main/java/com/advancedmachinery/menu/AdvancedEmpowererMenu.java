@@ -85,7 +85,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
     // 4 4 ( 44, 84) Input 4 – centro-basso (croce: bottom)
     // 5 5 (125, 54) Output (read-only)
     // 6 6 ( 98, 90) Speed Upgrade
-    // 7 7 (116, 90) Efficiency Upgrade
+    // 7 7 (116, 90) Energy Upgrade
     // 8–34 – Inventario player (3×9)
     // 35–43 – Hotbar player (9)
     // -----------------------------------------------------------------------
@@ -107,7 +107,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
 
         // Upgrade slots
         addSlot(new SlotItemHandler(handler, 6, 98, 90)); // Speed
-        addSlot(new SlotItemHandler(handler, 7, 116, 90)); // Efficiency
+        addSlot(new SlotItemHandler(handler, 7, 116, 90)); // Energy
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -175,7 +175,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
             boolean moved = false;
             if (stack.getItem() == ModItems.SPEED_UPGRADE.get()) {
                 moved = this.moveItemStackTo(stack, 6, 7, false);
-            } else if (stack.getItem() == ModItems.EFFICIENCY_UPGRADE.get()) {
+            } else if (stack.getItem() == ModItems.ENERGY_UPGRADE.get()) {
                 moved = this.moveItemStackTo(stack, 7, 8, false);
             } else {
                 // Tenta gli slot input (0–4)
