@@ -1,7 +1,7 @@
-package com.actuallyadditions.advancedmachinery.registration;
+package com.advancedmachinery.registration;
 
-import com.actuallyadditions.advancedmachinery.AdvancedMachinery;
-import com.actuallyadditions.advancedmachinery.block.AdvancedEmpowererBlock;
+import com.advancedmachinery.AdvancedMachinery;
+import com.advancedmachinery.block.AdvancedEmpowererBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
