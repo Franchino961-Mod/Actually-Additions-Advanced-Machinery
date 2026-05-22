@@ -1,6 +1,6 @@
-package com.actuallyadditions.advancedmachinery.registration;
+package com.advancedmachinery.registration;
 
-import com.actuallyadditions.advancedmachinery.AdvancedMachinery;
+import com.advancedmachinery.AdvancedMachinery;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
