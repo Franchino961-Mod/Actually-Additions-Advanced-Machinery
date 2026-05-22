@@ -1,7 +1,7 @@
-package com.actuallyadditions.advancedmachinery.registration;
+package com.advancedmachinery.registration;
 
-import com.actuallyadditions.advancedmachinery.AdvancedMachinery;
-import com.actuallyadditions.advancedmachinery.menu.AdvancedEmpowererMenu;
+import com.advancedmachinery.AdvancedMachinery;
+import com.advancedmachinery.menu.AdvancedEmpowererMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
