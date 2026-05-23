@@ -7,6 +7,18 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [0.7.1] - Allineamento GUI e Supporto Shader Energia
+
+### Aggiunto
+- **Texture Barra Energia Bianca**: Convertito lo sprite dell'energia a un colore interamente bianco per consentire la colorazione dinamica tramite shader (l'effetto arcobaleno di Actually Additions).
+
+### Corretto
+- **Dimensioni Barra Energia**: Ridotto il rettangolo di sfondo scuro della barra dell'energia da 90px a 85px nella texture della GUI per corrispondere esattamente alle dimensioni di Actually Additions.
+- **Costante `ENERGY_HEIGHT`**: Aggiornata la costante `ENERGY_HEIGHT` da `90` a `83` in `AdvancedEmpowererScreen.java` per allineare l'altezza utile interna con quella di Actually Additions, prevenendo lo sforamento visivo a carica massima.
+- **Coordinate Freccia di Progresso**: Aggiornate le coordinate e dimensioni della freccia di progresso in `AdvancedEmpowererScreen.java` per allinearsi al nuovo sprite `22x16`.
+
+---
+
 ## [0.7.0] - Sistema Energy Upgrade e Fix Critici
 
 ### Aggiunto
