@@ -32,9 +32,13 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
     private static final int ARROW_V = 0;
 
     // Energy bar: colonna destra (x=152)
+    // Dimensioni identiche ad Actually Additions (EnergyDisplay):
+    //   background totale: W=18px, H=85px (x=151..168, y=17..101)
+    //   area fill interna: W=16px, H=83px (1px border su tutti i lati)
+    //   formula fill: filled = energy * 83 / maxEnergy  (come AA)
     private static final int ENERGY_X = 152;
     private static final int ENERGY_Y_TOP = 18;
-    private static final int ENERGY_HEIGHT = 90;
+    private static final int ENERGY_HEIGHT = 83; // =85px totale -1px top border -1px bottom border
     private static final int ENERGY_WIDTH = 16;
     private static final int ENERGY_U = 176;
     private static final int ENERGY_V = 17;
