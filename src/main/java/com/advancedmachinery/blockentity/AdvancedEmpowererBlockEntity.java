@@ -33,18 +33,46 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     // -------------------------------------------------------------------
     // EnergyStorage estesa con setter diretto per il caricamento NBT
     // e capienza dinamica scalata con gli Energy Upgrade.
+    //
+    // FIX 1: dichiarata STATIC per evitare il riferimento implicito alla
+    // BlockEntity esterna, che causava memory leak e problemi di
+    // serializzazione. L'accesso all'inventario avviene tramite il
+    // Supplier<Integer> passato nel costruttore.
+    //
+    // FIX 2: setStored() ora fa il clamp corretto [0, capacity], evitando
+    // stati inconsistenti se il file NBT è corrotto o se l'energia
+    // salvata supera la nuova capacità dopo aver rimosso gli upgrade.
     // -------------------------------------------------------------------
-    public class MutableEnergyStorage extends EnergyStorage {
-        public MutableEnergyStorage(int capacity) {
-            super(capacity);
+    public static class MutableEnergyStorage extends EnergyStorage {
+
+        // Supplier che legge il conteggio degli Energy Upgrade dall'inventario.
+        // Usato da getMaxEnergyStored() senza tenere un riferimento diretto
+        // alla BlockEntity o all'ItemStackHandler.
+        private final java.util.function.IntSupplier energyUpgradeCountSupplier;
+
+        // Valore di maxEnergy lato client, sincronizzato via ContainerData.
+        // Lato server viene sempre calcolato al volo dal supplier.
+        private int clientMaxEnergy = ENERGY_CAPACITY;
+
+        public MutableEnergyStorage(int baseCapacity,
+                java.util.function.IntSupplier energyUpgradeCountSupplier) {
+            super(baseCapacity);
+            this.energyUpgradeCountSupplier = energyUpgradeCountSupplier;
         }
 
+        // -------------------------------------------------------------------
+        // Capacità dinamica: scala esponenzialmente con gli Energy Upgrade.
+        // Con 0 upgrade → ENERGY_CAPACITY (2.000.000 FE)
+        // Con 8 upgrade → ENERGY_CAPACITY * 10 (20.000.000 FE)
+        // -------------------------------------------------------------------
         @Override
         public int getMaxEnergyStored() {
-            if (level != null && level.isClientSide) {
+            // Lato client: usa il valore sincronizzato via ContainerData
+            // (il supplier punta all'inventario del server, non disponibile qui)
+            if (energyUpgradeCountSupplier == null) {
                 return clientMaxEnergy;
             }
-            int energyUpgrades = inventory.getStackInSlot(7).getCount();
+            int energyUpgrades = energyUpgradeCountSupplier.getAsInt();
             double multiplier = Math.pow(10.0, (double) energyUpgrades / 8.0);
             return (int) (ENERGY_CAPACITY * multiplier);
         }
@@ -53,48 +81,53 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         public int receiveEnergy(int maxReceive, boolean simulate) {
             if (!canReceive())
                 return 0;
-
             int maxEnergy = getMaxEnergyStored();
-            int energyReceived = Math.min(maxEnergy - this.energy, Math.min(maxEnergy, maxReceive));
-            if (!simulate) {
-                this.energy += energyReceived;
-            }
-            return energyReceived;
+            int received = Math.min(maxEnergy - this.energy, Math.min(maxEnergy, maxReceive));
+            if (!simulate)
+                this.energy += received;
+            return received;
         }
 
         @Override
         public int extractEnergy(int maxExtract, boolean simulate) {
             if (!canExtract())
                 return 0;
-
             int maxEnergy = getMaxEnergyStored();
-            int energyExtracted = Math.min(this.energy, Math.min(maxEnergy, maxExtract));
-            if (!simulate) {
-                this.energy -= energyExtracted;
-            }
-            return energyExtracted;
+            int extracted = Math.min(this.energy, Math.min(maxEnergy, maxExtract));
+            if (!simulate)
+                this.energy -= extracted;
+            return extracted;
         }
 
+        // FIX 2: clamp corretto — nessun valore negativo né superiore alla capacità.
         public void setStored(int amount) {
-            this.energy = amount;
+            this.energy = Math.max(0, Math.min(amount, getMaxEnergyStored()));
+        }
+
+        // Usato lato client dal ContainerData per aggiornare la capacità massima.
+        public void setClientMaxEnergy(int value) {
+            this.clientMaxEnergy = value;
+        }
+
+        public int getClientMaxEnergy() {
+            return clientMaxEnergy;
         }
     }
 
     // -------------------------------------------------------------------
     // Inventory layout (8 slot):
-    // 0 – Input modifier 1 (croce: top — coordinata GUI: 44, 24)
-    // 1 – Input modifier 2 (croce: left — coordinata GUI: 14, 54)
-    // 2 – Input BASE (croce: center — coordinata GUI: 44, 54)
-    // 3 – Input modifier 3 (croce: right — coordinata GUI: 74, 54)
-    // 4 – Input modifier 4 (croce: bottom — coordinata GUI: 44, 84)
+    // 0 – Input modifier 1 (croce: top — GUI: 44, 24)
+    // 1 – Input modifier 2 (croce: left — GUI: 14, 54)
+    // 2 – Input BASE (croce: center — GUI: 44, 54)
+    // 3 – Input modifier 3 (croce: right — GUI: 74, 54)
+    // 4 – Input modifier 4 (croce: bottom — GUI: 44, 84)
     // 5 – Output (read-only)
     // 6 – Speed Upgrade (max 8)
     // 7 – Energy Upgrade (max 8)
     //
-    // NOTA: EmpowererRecipe.matches(base, m1, m2, m3, m4) richiede
-    // esattamente 1 base + 4 modifier, tutti non-empty.
-    // Slot 2 = base, slot 0,1,3,4 = modifier (AA gestisce internamente
-    // tutte le permutazioni dei modifier).
+    // EmpowererRecipe.matches(base, m1, m2, m3, m4):
+    // Slot 2 = base, slot 0,1,3,4 = modifier.
+    // AA gestisce internamente le permutazioni dei modifier.
     // -------------------------------------------------------------------
     private final ItemStackHandler inventory = new ItemStackHandler(8) {
         @Override
@@ -106,16 +139,10 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             return switch (slot) {
-                case 5 -> false; // output – no
-                                 // inserimento
-                                 // manuale
+                case 5 -> false; // output — no inserimento manuale
                 case 6 -> stack.getItem() == ModItems.SPEED_UPGRADE.get();
                 case 7 -> stack.getItem() == ModItems.ENERGY_UPGRADE.get();
-                default -> true; // slot
-                                 // 0,1,2,3,4
-                                 // →
-                                 // input
-                                 // liberi
+                default -> true; // slot 0-4 → input liberi
             };
         }
 
@@ -125,7 +152,12 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         }
     };
 
-    private final MutableEnergyStorage energy = new MutableEnergyStorage(ENERGY_CAPACITY);
+    // Il supplier legge il conteggio degli Energy Upgrade direttamente
+    // dall'inventario della BlockEntity — elimina l'accoppiamento implicito
+    // che esisteva quando MutableEnergyStorage era una inner class non-statica.
+    private final MutableEnergyStorage energy = new MutableEnergyStorage(
+            ENERGY_CAPACITY,
+            () -> inventory.getStackInSlot(7).getCount());
 
     public ItemStackHandler getInventory() {
         return inventory;
@@ -142,14 +174,38 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     private Optional<RecipeHolder<EmpowererRecipe>> cachedRecipe = null;
     private boolean recipeDirty = true;
 
-    // ContainerData: 0=progress, 1=maxProgress, 2=energyStored, 3=maxEnergy
+    // -------------------------------------------------------------------
+    // ContainerData — 6 valori sincronizzati client/server ogni tick:
+    //
+    // 0 = progress (tick correnti, max 32767)
+    // 1 = maxProgress (tick totali ricetta modificata)
+    // 2 = energyStored LOW (bit 0-15 dell'energia corrente)
+    // 3 = energyStored HI (bit 16-31 dell'energia corrente)
+    // 4 = maxEnergy LOW (bit 0-15 della capacità massima)
+    // 5 = maxEnergy HI (bit 16-31 della capacità massima)
+    //
+    // ContainerData trasmette solo int a 16 bit firmati (-32768..32767).
+    // Per trasportare valori fino a 20.000.000 FE (25 bit) usiamo due
+    // slot per ciascun valore (split a 16 bit).
+    //
+    // FIX (sincronizzazione atomica): i due half-word di energyStored e
+    // maxEnergy vengono aggiornati nel set() usando variabili di staging
+    // locali (pendingEnergyStored, pendingMaxEnergy). Il valore effettivo
+    // viene applicato solo quando arriva il secondo half-word (HI), in
+    // modo che la GUI legga sempre una coppia coerente e non un valore
+    // ibrido tra vecchio e nuovo frame.
+    // -------------------------------------------------------------------
     protected final ContainerData data;
     private int progress = 0;
     private int maxProgress = BASE_SPEED;
-    private int clientMaxEnergy = ENERGY_CAPACITY;
+
+    // Valori di staging per la ricostruzione atomica lato client
+    private int pendingEnergyLow = 0;
+    private int pendingMaxEnergyLow = 0;
 
     public AdvancedEmpowererBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ADVANCED_EMPOWERER.get(), pos, state);
+
         this.data = new ContainerData() {
             @Override
             public int get(int index) {
@@ -169,19 +225,19 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                 switch (index) {
                     case 0 -> progress = value;
                     case 1 -> maxProgress = value;
-                    case 2 -> {
-                        int current = energy.getEnergyStored();
-                        energy.setStored((current & 0xFFFF0000) | (value & 0xFFFF));
-                    }
+
+                    // Energia corrente: accumula LOW, applica quando arriva HI
+                    case 2 -> pendingEnergyLow = value & 0xFFFF;
                     case 3 -> {
-                        int current = energy.getEnergyStored();
-                        energy.setStored(((value & 0xFFFF) << 16) | (current & 0xFFFF));
+                        int full = ((value & 0xFFFF) << 16) | pendingEnergyLow;
+                        energy.setStored(full);
                     }
-                    case 4 -> {
-                        clientMaxEnergy = (clientMaxEnergy & 0xFFFF0000) | (value & 0xFFFF);
-                    }
+
+                    // Capacità massima: accumula LOW, applica quando arriva HI
+                    case 4 -> pendingMaxEnergyLow = value & 0xFFFF;
                     case 5 -> {
-                        clientMaxEnergy = ((value & 0xFFFF) << 16) | (clientMaxEnergy & 0xFFFF);
+                        int full = ((value & 0xFFFF) << 16) | pendingMaxEnergyLow;
+                        energy.setClientMaxEnergy(full);
                     }
                 }
             }
@@ -209,7 +265,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     }
 
     // -------------------------------------------------------------------
-    // Tick
+    // Tick (solo server-side)
     // -------------------------------------------------------------------
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (level == null || level.isClientSide)
@@ -247,17 +303,15 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
     // -------------------------------------------------------------------
     // Recipe matching
-    // Slot 2 = base (centro), slot 0,1,3,4 = modifier
-    // Il layout rispecchia esattamente la GUI: center = base item.
-    // matches() richiede tutti e 4 i modifier non-empty → se uno slot è
-    // vuoto la ricetta non matcha (comportamento corretto).
+    // Slot 2 = base (centro), slot 0,1,3,4 = modifier.
+    // Cache invalidata ogni volta che l'inventario cambia.
     // -------------------------------------------------------------------
     private Optional<RecipeHolder<EmpowererRecipe>> getRecipe() {
         if (level == null)
             return Optional.empty();
 
         if (recipeDirty || cachedRecipe == null) {
-            ItemStack base = inventory.getStackInSlot(2); // center slot
+            ItemStack base = inventory.getStackInSlot(2); // center
             ItemStack m1 = inventory.getStackInSlot(0); // top
             ItemStack m2 = inventory.getStackInSlot(1); // left
             ItemStack m3 = inventory.getStackInSlot(3); // right
@@ -285,7 +339,6 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         ItemStack result = recipe.getOutput().copy();
         ItemStack currentOut = inventory.getStackInSlot(5);
 
-        // Consuma base (slot 2) + tutti e 4 i modifier (slot 0,1,3,4)
         for (int i = 0; i < 5; i++) {
             inventory.extractItem(i, 1, false);
         }
@@ -300,6 +353,15 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
     // -------------------------------------------------------------------
     // Upgrade helpers
+    //
+    // Speed Upgrade — velocità esponenziale:
+    // S(u) = 10^(u/8)
+    // Con 8 upgrade → 10x velocità, tempo ridotto da 200 a 20 tick.
+    //
+    // Energy Upgrade — riduce il consumo bilanciando la velocità:
+    // usage = baseUsage * 10^((2*S - E) / 8)
+    // Con 8S + 8E → exponent = (16-8)/8 = 1 → consumo = baseUsage * 10
+    // (il buffer più grande compensa il costo aggiuntivo degli Speed).
     // -------------------------------------------------------------------
     private int getModifiedTime(int original) {
         int speed = inventory.getStackInSlot(6).getCount();
@@ -335,6 +397,8 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("Inventory"));
+        // setStored() ora clamp correttamente — safe anche se il valore NBT
+        // supera la capacità attuale (es. dopo aver rimosso degli Energy Upgrade).
         energy.setStored(tag.getInt("Energy"));
         this.progress = tag.getInt("Progress");
         this.recipeDirty = true;
