@@ -7,6 +7,28 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [0.7.0] - Sistema Energy Upgrade e Fix Critici
+
+### Aggiunto
+- **Oggetto Energy Upgrade**: Sostituisce l'Efficiency Upgrade con un nuovo oggetto `Energy Upgrade` dal duplice scopo: riduce il consumo energetico per tick e aumenta la capacità del buffer energetico interno della macchina.
+- **Buffer Energetico Dinamico**: La capacità energetica dell'Advanced Empowerer scala ora in modo esponenziale con gli Energy Upgrade installati, da 2.000.000 FE (base) fino a 20.000.000 FE (8 upgrade).
+
+### Modificato
+- **Riprogettazione Sistema Upgrade**: Lo slot upgrade precedentemente dedicato agli Efficiency Upgrade (slot 7) accetta ora gli Energy Upgrade, che combinano riduzione del consumo ed espansione del buffer in un unico oggetto.
+- **Formula Velocità Esponenziale**: Lo Speed Upgrade usa ora `S(u) = 10^(u/8)`, raggiungendo 10x velocità con 8 upgrade (tempo ridotto da 200 a 20 tick).
+- **Formula Energia Esponenziale**: L'energia per tick è ora `usage = baseUsage * 10^((2*S - E) / 8)`, permettendo agli Energy Upgrade di compensare completamente il costo aggiuntivo introdotto dagli Speed Upgrade.
+- **Limite Slot Upgrade**: Entrambi gli slot Speed ed Energy Upgrade accettano ora fino a 8 oggetti (in precedenza 4).
+- **`ContainerData` espanso a 6 valori**: Aggiunti due slot extra (indici 4 e 5) per sincronizzare il valore dinamico di `maxEnergy` al client, necessario per il nuovo buffer a capacità variabile.
+
+### Corretto
+- **`MutableEnergyStorage` dichiarata come inner class `static`**: In precedenza era una inner class non-statica e portava un riferimento implicito alla BlockEntity esterna, causando potential memory leak e un accoppiamento nascosto con l'handler dell'inventario. Ora è statica, con l'accesso agli upgrade delegato a un `IntSupplier` passato al costruttore.
+- **`setStored()` con clamp corretto**: In precedenza assegnava il valore grezzo a `this.energy` senza controllo dei limiti. Se l'energia salvata nell'NBT superava la capacità attuale (es. dopo la rimozione di Energy Upgrade), `receiveEnergy()` ed `extractEnergy()` producevano risultati inconsistenti. Ora fa il clamp a `[0, getMaxEnergyStored()]`.
+- **Sincronizzazione energia atomica (split a 16 bit)**: I due half-word di `energyStored` e `maxEnergy` vengono ora applicati atomicamente usando variabili di staging (`pendingEnergyLow`, `pendingMaxEnergyLow`). Il valore completo viene aggiornato solo quando arriva il half-word HI, evitando che la GUI legga un valore ibrido tra due frame di aggiornamento.
+- **`ClientEvents` — aggiunto `bus = Bus.MOD`**: `RegisterMenuScreensEvent` è un Mod Bus event. Il parametro `bus` mancante faceva sì che fosse registrato sul Game Bus, quindi la schermata GUI non veniva mai registrata e il gioco andava in crash al primo clic destro sul blocco.
+- **`neoforge.mods.toml` — corretta `versionRange` di NeoForge**: Era `[${neo_version},)` (espansa a `[21.1.223,)`), richiedendo esattamente quella build o superiore. Ora usa `${neo_version_range}` (definita come `[21.1.0,)` in `gradle.properties`), accettando qualsiasi build compatibile della family 21.1.x.
+
+---
+
 ## [0.6.1] - Fix Coordinate Slot
 ### Corretto
 - **Coordinate Slot**: Corrette le posizioni degli slot nella GUI per tutti gli slot di input e per lo slot di output, in modo che corrispondano correttamente al layout della texture definitiva.
