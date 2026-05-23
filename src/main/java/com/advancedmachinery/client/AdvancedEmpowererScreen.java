@@ -3,6 +3,7 @@ package com.advancedmachinery.client;
 import com.advancedmachinery.AdvancedMachinery;
 import com.advancedmachinery.menu.AdvancedEmpowererMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -18,14 +19,15 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
     private static final int GUI_WIDTH = 176;
     private static final int GUI_HEIGHT = 204;
 
-    // Freccia di progresso: da destra del centro (slot 2 @ x=44, largh 16 → bordo
-    // dx = 60)
-    // verso sinistra dell'output (slot 5 @ x=116) → spazio = 56px, freccia 50px
-    // centrata
-    private static final int ARROW_X = 62; // bordo sinistro freccia (60+2 padding)
-    private static final int ARROW_Y = 56; // allineata verticalmente agli slot y=54
-    private static final int ARROW_WIDTH = 50;
-    private static final int ARROW_HEIGHT = 14;
+    // Freccia di progresso:
+    // La zona "vuota" (background bianco) è a x=90..124, y=54..70 nel GUI.
+    // Sprite attivo (arancione, U=176 V=0): 22×16 px — freccia → con shaft + punta.
+    // ARROW_X allineato al bordo sinistro della zona vuota (dopo slot 3 a x=74+16=90).
+    // ARROW_Y allineato al bordo superiore della zona vuota (top degli slot = 54).
+    private static final int ARROW_X = 90; // bordo sinistro zona freccia
+    private static final int ARROW_Y = 54; // bordo superiore zona freccia
+    private static final int ARROW_WIDTH = 22; // larghezza sprite aggiornata
+    private static final int ARROW_HEIGHT = 16; // altezza sprite aggiornata
     private static final int ARROW_U = 176;
     private static final int ARROW_V = 0;
 
@@ -82,10 +84,44 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
         if (filled <= 0)
             return;
         int yOffset = ENERGY_HEIGHT - filled;
+
+        // Animazione arcobaleno: stessa tecnica di Actually Additions (EnergyDisplay.draw).
+        // getWheelColor(gameTime % 256) mappa il tempo di gioco sulla ruota dei colori HSV
+        // a saturazione e valore massimi. setShaderColor() tinge il blit con quel colore.
+        // Lo sprite della barra (U=176, V=17) è bianco per ricevere il colore puro.
+        if (Minecraft.getInstance().level != null) {
+            float[] rgb = getWheelColor(Minecraft.getInstance().level.getGameTime() % 256L);
+            RenderSystem.setShaderColor(rgb[0] / 255f, rgb[1] / 255f, rgb[2] / 255f, 1.0f);
+        }
+
         guiGraphics.blit(TEXTURE,
                 x + ENERGY_X, y + ENERGY_Y_TOP + yOffset,
                 ENERGY_U, ENERGY_V + yOffset,
                 ENERGY_WIDTH, filled);
+
+        // Ripristina il colore neutro (importante: senza questo, i blit successivi sarebbero tinti)
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    // -------------------------------------------------------------------
+    // Converte una posizione 0–255 nella ruota dei colori HSV (S=1, V=1).
+    // Identica all'algoritmo di AssetUtil.getWheelColor() di Actually Additions.
+    // -------------------------------------------------------------------
+    private static float[] getWheelColor(long position) {
+        float h = (position % 256L) / 256f * 6f; // hue 0..6
+        int   i = (int) h % 6;
+        float f = h - (int) h;  // parte frazionaria
+        float q = (1f - f) * 255f; // fade-out
+        float t = f * 255f;         // fade-in
+        return switch (i) {
+            case 0 -> new float[]{ 255f, t,    0f   }; // red → yellow
+            case 1 -> new float[]{ q,    255f, 0f   }; // yellow → green
+            case 2 -> new float[]{ 0f,   255f, t    }; // green → cyan
+            case 3 -> new float[]{ 0f,   q,    255f }; // cyan → blue
+            case 4 -> new float[]{ t,    0f,   255f }; // blue → magenta
+            case 5 -> new float[]{ 255f, 0f,   q    }; // magenta → red
+            default -> new float[]{ 255f, 255f, 255f };
+        };
     }
 
     @Override
