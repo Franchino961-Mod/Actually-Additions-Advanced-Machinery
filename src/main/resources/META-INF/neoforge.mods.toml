@@ -10,10 +10,15 @@ logoFile = "assets/advancedmachinery/icon.png"
 authors = "${mod_authors}"
 description = "${mod_description}"
 
+# FIX: era "[${neo_version},)" che espandeva a "[21.1.223,)" richiedendo
+# esattamente quella build o superiore. Ora usa ${neo_version_range}
+# definita in gradle.properties come "[21.1.0,)" — accetta qualsiasi
+# build della patch family 21.1.x, che è il comportamento corretto
+# per un addon pubblico.
 [[dependencies.${mod_id}]]
 modId = "neoforge"
 type = "required"
-versionRange = "[${neo_version},)"
+versionRange = "${neo_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
