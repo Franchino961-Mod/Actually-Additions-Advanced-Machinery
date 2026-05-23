@@ -3,7 +3,7 @@
 Un potente addon per **Actually Additions** che introduce una versione avanzata e completamente funzionale dell'Empowerer — con supporto a tutti e 4 gli slot modifier, upgrade, e una GUI personalizzata completa.
 
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-green.svg)](https://www.minecraft.net/)
-[![Version](https://img.shields.io/badge/version-0.6.1-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.7.1-blue.svg)]()
 [![NeoForge](https://img.shields.io/badge/NeoForge-21.1.223-orange.svg)](https://neoforged.net/)
 [![Actually Additions](https://img.shields.io/badge/Actually%20Additions-1.3.1-purple.svg)](https://www.curseforge.com/minecraft/mc-mods/actually-additions)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
@@ -17,7 +17,7 @@ Un potente addon per **Actually Additions** che introduce una versione avanzata 
 
 ## 🌟 Perché Advanced Machinery?
 - **Supporto Ricette Completo**: Supporta tutte le ricette dell'Empowerer di Actually Additions, incluse quelle che richiedono tutti e 4 gli slot modifier.
-- **Sistema di Upgrade**: Installa Speed Upgrade ed Efficiency Upgrade (fino a 4 ciascuno) per ottimizzare la produzione.
+- **Sistema di Upgrade**: Installa Speed Upgrade ed Energy Upgrade (fino a 8 ciascuno) per ottimizzare la produzione.
 - **GUI Personalizzata**: Un'interfaccia pulita e intuitiva con tutti gli slot input in layout a croce, barra dell'energia e freccia di progresso.
 - **Integrazione JEI**: Sfoglia tutte le ricette Empowerer compatibili direttamente da JEI.
 
@@ -36,8 +36,8 @@ Un potente addon per **Actually Additions** che introduce una versione avanzata 
 - **Layout Input a 5 Slot**: Uno slot base centrale + 4 slot modifier disposti a croce, in linea con il formato completo delle ricette dell'Empowerer di Actually Additions.
 - **Slot di Output**: Uno slot di output dedicato in sola lettura — gli oggetti vengono posizionati automaticamente al completamento della ricetta.
 - **Sistema Energetico**: La macchina consuma Forge Energy (FE). Una barra visiva dell'energia è mostrata nella GUI.
-- **Speed Upgrade**: Riduce i tick necessari per completare una ricetta (fino a 4 slot).
-- **Efficiency Upgrade**: Riduce il consumo di energia per operazione (fino a 4 slot).
+- **Speed Upgrade**: Riduce i tick necessari per completare una ricetta (fino a 8 slot).
+- **Energy Upgrade**: Riduce il consumo di energia per operazione e aumenta la capacità del buffer energetico interno (fino a 8 slot).
 - **Piazzamento Direzionale**: Il blocco ruota per essere rivolto verso il giocatore quando viene posizionato.
 - **Drop Inventario**: Tutti gli oggetti vengono rilasciati nel mondo in modo sicuro quando il blocco viene rotto.
 - **Plugin JEI**: Tutte le ricette Empowerer compatibili sono sfogliabili e trasferibili tramite JEI.
