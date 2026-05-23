@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.1] - GUI Alignment & Energy Shader Support
+
+### Added
+- **White Energy Bar Sprite**: Converted the energy bar fill sprite to grayscale/white to support dynamic coloring via shaders (such as Actually Additions' animated rainbow shader).
+
+### Fixed
+- **Energy Bar Dimensions**: Resized the GUI background's dark energy bar rectangle from 90px to 85px to match the dimensions of Actually Additions.
+- **`ENERGY_HEIGHT` Constant**: Updated `ENERGY_HEIGHT` to `83` (from `90`) in `AdvancedEmpowererScreen.java` to align the inner drawable fill area with Actually Additions, preventing visual overflow at maximum capacity.
+- **Progress Arrow Constants**: Updated progress arrow rendering coordinates to match the new `22x16` sprite dimensions.
+
+---
+
 ## [0.7.0] - Energy Upgrade System & Critical Fixes
 
 ### Added
