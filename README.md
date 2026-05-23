@@ -3,7 +3,7 @@
 A powerful addon for **Actually Additions** that introduces a fully functional, multi-block advanced version of the Empowerer — supporting all 4 modifier slots, upgrades, and a complete custom GUI.
 
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-green.svg)](https://www.minecraft.net/)
-[![Version](https://img.shields.io/badge/version-0.6.1-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.7.1-blue.svg)]()
 [![NeoForge](https://img.shields.io/badge/NeoForge-21.1.223-orange.svg)](https://neoforged.net/)
 [![Actually Additions](https://img.shields.io/badge/Actually%20Additions-1.3.1-purple.svg)](https://www.curseforge.com/minecraft/mc-mods/actually-additions)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -17,7 +17,7 @@ A powerful addon for **Actually Additions** that introduces a fully functional, 
 
 ## 🌟 Why Advanced Machinery?
 - **Full Recipe Support**: Supports all Actually Additions Empowerer recipes, including those requiring all 4 modifier items.
-- **Upgrade System**: Install Speed and Efficiency Upgrades (up to 4 each) to optimize your production.
+- **Upgrade System**: Install Speed and Energy Upgrades (up to 8 each) to optimize your production.
 - **Custom GUI**: A clean, intuitive interface showing all input slots in a cross layout, an energy bar, and a progress arrow.
 - **JEI Integration**: Browse all compatible Empowerer recipes directly in JEI.
 
@@ -36,8 +36,8 @@ A powerful addon for **Actually Additions** that introduces a fully functional, 
 - **5-Slot Input Layout**: One base input slot + 4 modifier slots arranged in a cross pattern, matching the full Actually Additions Empowerer recipe format.
 - **Output Slot**: A dedicated read-only output slot — items are placed here automatically upon recipe completion.
 - **Energy System**: The machine consumes Forge Energy (FE). A visual energy bar is displayed in the GUI.
-- **Speed Upgrade**: Reduces the ticks required to complete a recipe (up to 4 slots).
-- **Efficiency Upgrade**: Reduces energy consumption per operation (up to 4 slots).
+- **Speed Upgrade**: Reduces the ticks required to complete a recipe (up to 8 slots).
+- **Energy Upgrade**: Reduces energy consumption per operation and increases internal energy buffer capacity (up to 8 slots).
 - **Directional Placement**: The block rotates to face the player when placed.
 - **Inventory Drop**: All items are safely dropped into the world when the block is broken.
 - **JEI Plugin**: All compatible Empowerer recipes are browsable and transferable via JEI.
