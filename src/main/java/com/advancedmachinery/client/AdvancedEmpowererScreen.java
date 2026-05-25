@@ -22,9 +22,10 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
     // Freccia di progresso:
     // La zona "vuota" (background bianco) è a x=90..124, y=54..70 nel GUI.
     // Sprite attivo (arancione, U=176 V=0): 22×16 px — freccia → con shaft + punta.
-    // ARROW_X allineato al bordo sinistro della zona vuota (dopo slot 3 a x=74+16=90).
+    // ARROW_X allineato al bordo sinistro della zona vuota (dopo slot 3 a
+    // x=74+16=90).
     // ARROW_Y allineato al bordo superiore della zona vuota (top degli slot = 54).
-    private static final int ARROW_X = 90; // bordo sinistro zona freccia
+    private static final int ARROW_X = 95; // bordo sinistro zona freccia
     private static final int ARROW_Y = 54; // bordo superiore zona freccia
     private static final int ARROW_WIDTH = 22; // larghezza sprite aggiornata
     private static final int ARROW_HEIGHT = 16; // altezza sprite aggiornata
@@ -33,9 +34,9 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
 
     // Energy bar: colonna destra (x=152)
     // Dimensioni identiche ad Actually Additions (EnergyDisplay):
-    //   background totale: W=18px, H=85px (x=151..168, y=17..101)
-    //   area fill interna: W=16px, H=83px (1px border su tutti i lati)
-    //   formula fill: filled = energy * 83 / maxEnergy  (come AA)
+    // background totale: W=18px, H=85px (x=151..168, y=17..101)
+    // area fill interna: W=16px, H=83px (1px border su tutti i lati)
+    // formula fill: filled = energy * 83 / maxEnergy (come AA)
     private static final int ENERGY_X = 152;
     private static final int ENERGY_Y_TOP = 18;
     private static final int ENERGY_HEIGHT = 83; // =85px totale -1px top border -1px bottom border
@@ -89,9 +90,12 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
             return;
         int yOffset = ENERGY_HEIGHT - filled;
 
-        // Animazione arcobaleno: stessa tecnica di Actually Additions (EnergyDisplay.draw).
-        // getWheelColor(gameTime % 256) mappa il tempo di gioco sulla ruota dei colori HSV
-        // a saturazione e valore massimi. setShaderColor() tinge il blit con quel colore.
+        // Animazione arcobaleno: stessa tecnica di Actually Additions
+        // (EnergyDisplay.draw).
+        // getWheelColor(gameTime % 256) mappa il tempo di gioco sulla ruota dei colori
+        // HSV
+        // a saturazione e valore massimi. setShaderColor() tinge il blit con quel
+        // colore.
         // Lo sprite della barra (U=176, V=17) è bianco per ricevere il colore puro.
         if (Minecraft.getInstance().level != null) {
             float[] rgb = getWheelColor(Minecraft.getInstance().level.getGameTime() % 256L);
@@ -103,7 +107,8 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
                 ENERGY_U, ENERGY_V + yOffset,
                 ENERGY_WIDTH, filled);
 
-        // Ripristina il colore neutro (importante: senza questo, i blit successivi sarebbero tinti)
+        // Ripristina il colore neutro (importante: senza questo, i blit successivi
+        // sarebbero tinti)
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
@@ -113,18 +118,18 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
     // -------------------------------------------------------------------
     private static float[] getWheelColor(long position) {
         float h = (position % 256L) / 256f * 6f; // hue 0..6
-        int   i = (int) h % 6;
-        float f = h - (int) h;  // parte frazionaria
+        int i = (int) h % 6;
+        float f = h - (int) h; // parte frazionaria
         float q = (1f - f) * 255f; // fade-out
-        float t = f * 255f;         // fade-in
+        float t = f * 255f; // fade-in
         return switch (i) {
-            case 0 -> new float[]{ 255f, t,    0f   }; // red → yellow
-            case 1 -> new float[]{ q,    255f, 0f   }; // yellow → green
-            case 2 -> new float[]{ 0f,   255f, t    }; // green → cyan
-            case 3 -> new float[]{ 0f,   q,    255f }; // cyan → blue
-            case 4 -> new float[]{ t,    0f,   255f }; // blue → magenta
-            case 5 -> new float[]{ 255f, 0f,   q    }; // magenta → red
-            default -> new float[]{ 255f, 255f, 255f };
+            case 0 -> new float[] { 255f, t, 0f }; // red → yellow
+            case 1 -> new float[] { q, 255f, 0f }; // yellow → green
+            case 2 -> new float[] { 0f, 255f, t }; // green → cyan
+            case 3 -> new float[] { 0f, q, 255f }; // cyan → blue
+            case 4 -> new float[] { t, 0f, 255f }; // blue → magenta
+            case 5 -> new float[] { 255f, 0f, q }; // magenta → red
+            default -> new float[] { 255f, 255f, 255f };
         };
     }
 
