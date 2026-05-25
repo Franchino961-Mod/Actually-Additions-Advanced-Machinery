@@ -106,3 +106,4 @@ neoforge-out/
 Docs/*
 !README.*.md
 !CHANGELOG.*.md
+!assets/
