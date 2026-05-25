@@ -1,3 +1,5 @@
+![Actually Additions: Advanced Machinery - Banner](https://raw.githubusercontent.com/Franchino961-Mod/Actually-Additions-Advanced-Machinery/main/Docs/assets/image/Actually%20Additions%20-%20Advanced%20Machinery.png)
+
 # ⚙️ Actually Additions: Advanced Machinery
 
 Un potente addon per **Actually Additions** che introduce una versione avanzata e completamente funzionale dell'Empowerer — con supporto a tutti e 4 gli slot modifier, upgrade, e una GUI personalizzata completa.
