@@ -9,6 +9,8 @@ displayName = "${mod_name}"
 logoFile = "assets/advancedmachinery/icon.png"
 authors = "${mod_authors}"
 description = "${mod_description}"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/actually-additions-advanced-machinery"
+issueTrackerURL = "https://github.com/Franchino961-Mod/Actually-Additions-Advanced-Machinery/issues"
 
 # FIX: era "[${neo_version},)" che espandeva a "[21.1.223,)" richiedendo
 # esattamente quella build o superiore. Ora usa ${neo_version_range}
