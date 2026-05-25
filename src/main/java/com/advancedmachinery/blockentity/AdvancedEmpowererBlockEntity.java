@@ -226,17 +226,27 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                     case 0 -> progress = value;
                     case 1 -> maxProgress = value;
 
-                    // Energia corrente: accumula LOW, applica quando arriva HI
-                    case 2 -> pendingEnergyLow = value & 0xFFFF;
+                    // Energia corrente: applica immediatamente unendo la parte ricevuta con quella memorizzata
+                    case 2 -> {
+                        pendingEnergyLow = value & 0xFFFF;
+                        int currentHigh = (energy.getEnergyStored() >> 16) & 0xFFFF;
+                        energy.setStored((currentHigh << 16) | pendingEnergyLow);
+                    }
                     case 3 -> {
-                        int full = ((value & 0xFFFF) << 16) | pendingEnergyLow;
+                        int currentLow = energy.getEnergyStored() & 0xFFFF;
+                        int full = ((value & 0xFFFF) << 16) | currentLow;
                         energy.setStored(full);
                     }
 
-                    // Capacità massima: accumula LOW, applica quando arriva HI
-                    case 4 -> pendingMaxEnergyLow = value & 0xFFFF;
+                    // Capacità massima: applica immediatamente
+                    case 4 -> {
+                        pendingMaxEnergyLow = value & 0xFFFF;
+                        int currentHigh = (energy.getClientMaxEnergy() >> 16) & 0xFFFF;
+                        energy.setClientMaxEnergy((currentHigh << 16) | pendingMaxEnergyLow);
+                    }
                     case 5 -> {
-                        int full = ((value & 0xFFFF) << 16) | pendingMaxEnergyLow;
+                        int currentLow = energy.getClientMaxEnergy() & 0xFFFF;
+                        int full = ((value & 0xFFFF) << 16) | currentLow;
                         energy.setClientMaxEnergy(full);
                     }
                 }
