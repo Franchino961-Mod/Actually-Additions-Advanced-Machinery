@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- Translations for German (`de_de`), Spanish (`es_es`), French (`fr_fr`), Portuguese (`pt_br`), Russian (`ru_ru`), and Chinese (`zh_cn`).
+- CurseForge download badge and compatibility & modpack notes to English and Italian README files.
+
+### Changed
+- Normalized line endings configuration in `.gitattributes`.
+- Updated `.gitignore` rules to improve coverage for build files, IDE artifacts, and development environments.
+
+---
+
 ## [0.7.1] - GUI Alignment & Energy Shader Support
 
 ### Added
