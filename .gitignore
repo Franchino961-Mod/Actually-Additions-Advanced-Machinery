@@ -11,7 +11,6 @@
 ehthumbs.db
 Thumbs.db
 Desktop.ini
-*.js
 
 # Editor / IDE files
 .vscode/
@@ -36,7 +35,10 @@ Desktop.ini
 *.rej
 *.diff
 *.patch
-backup/
+draft/
+WIP/
+scratch/
+.tools/
 
 # Logs / diagnostics
 *.log
@@ -45,18 +47,58 @@ logs/
 log/
 crash-reports/
 debug.log
-*.zip
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Caches / tool state
 .cache/
+.eslintcache
+.parcel-cache/
+.turbo/
+.vite/
+.stylelintcache
+.sass-cache/
+.nyc_output/
+coverage/
+
+# Auto-generated upgrade hook telemetry
+.github/java-upgrade/
+
+# Environment / secrets
+.env
+.env.*
+*.env
+*.env.*
+*.local
+*.secret
+*.secrets
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Archives / packaged artifacts
+*.7z
+*.gz
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.xz
+*.bz2
 
 # ==================================
-# Java / Gradle / Fabric Mod
+# Java / Gradle / Maven / Minecraft
 # ==================================
 
 .gradle/
 build/
+dist/
 out/
+target/
 bin/
 classes/
 generated/
@@ -64,18 +106,20 @@ generated-sources/
 generated-resources/
 *.class
 *.jar
+*.war
+*.ear
+*.nar
 *.lck
+dependency-reduced-pom.xml
 
-# Mod dev environments
+# Minecraft / datapack / plugin / mod dev environments
 run/
 runs/
 run-*/
 .run/
 .minecraft/
-/server/
-/client/
-!src/client/
-!src/client/**
+server/
+client/
 world/
 saves/
 testworld/
@@ -84,7 +128,7 @@ screenshots/
 hs_err_pid*
 replay_pid*
 
-# Mod-loader specific folders
+# Common mod-loader specific folders
 .fabric/
 .forge/
 .neoforge/
@@ -92,12 +136,41 @@ replay_pid*
 .mcp/
 .architectury/
 
-# Packaged outputs from mod tooling
+# Common packaged outputs from mod/plugin tooling
 remappedSrc/
 remappedClasses/
 fabric-out/
 forge-out/
 neoforge-out/
+
+# ==================================
+# Python / Node / other tooling
+# ==================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+ENV/
+node_modules/
+
+# ==================================
+# Optional local-only project files
+# ==================================
+
+*.pid
+*.seed
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.mdb
+*.sublime-workspace
+*.sublime-project
 
 # =========================
 # Documentation / media / assets
@@ -107,3 +180,15 @@ Docs/*
 !README.*.md
 !CHANGELOG.*.md
 !assets/
+
+# Local scripting and backups
+backup/
+config/
+*.ps1
+*.bat
+*.cmd
+*.sh
+
+# Whitelist gradle wrappers
+!gradlew
+!gradlew.bat
