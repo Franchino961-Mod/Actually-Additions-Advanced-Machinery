@@ -1,0 +1,9 @@
+{
+  "block.advancedmachinery.advanced_empowerer": "Улучшенный наполнитель",
+  "item.advancedmachinery.speed_upgrade": "Улучшение скорости",
+  "item.advancedmachinery.energy_upgrade": "Улучшение энергии",
+  "itemGroup.advancedmachinery": "Advanced Machinery",
+  "container.advancedmachinery.advanced_empowerer": "Улучшенный наполнитель",
+  "tooltip.advancedmachinery.speed_upgrade": "Уменьшает время обработки.",
+  "tooltip.advancedmachinery.energy_upgrade": "Снижает потребление энергии и увеличивает энергоемкость."
+}
