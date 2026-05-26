@@ -1,0 +1,9 @@
+{
+  "block.advancedmachinery.advanced_empowerer": "高级充能台",
+  "item.advancedmachinery.speed_upgrade": "速度升级",
+  "item.advancedmachinery.energy_upgrade": "能量升级",
+  "itemGroup.advancedmachinery": "高级机械",
+  "container.advancedmachinery.advanced_empowerer": "高级充能台",
+  "tooltip.advancedmachinery.speed_upgrade": "缩短处理时间。",
+  "tooltip.advancedmachinery.energy_upgrade": "降低能量消耗并提高能量容量。"
+}
