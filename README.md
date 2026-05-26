@@ -2,7 +2,11 @@
 
 # ⚙️ Actually Additions: Advanced Machinery
 
+## 📖 Overview
+
 A powerful addon for **Actually Additions** that introduces a fully functional, multi-block advanced version of the Empowerer — supporting all 4 modifier slots, upgrades, and a complete custom GUI.
+
+[![Download on CurseForge](https://img.shields.io/badge/Download_on-CurseForge-orange?style=for-the-badge&logo=curseforge)](https://www.curseforge.com/minecraft/mc-mods/actually-additions-advanced-machinery)
 
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-green.svg)](https://www.minecraft.net/)
 [![Version](https://img.shields.io/badge/version-0.7.1-blue.svg)]()
@@ -65,6 +69,13 @@ A powerful addon for **Actually Additions** that introduces a fully functional, 
 ## 🖥️ Client/Server Behavior
 - **Server**: Required. The mod handles block entities, energy, recipe matching, and item processing on the server side.
 - **Client**: Required. Includes the custom GUI screen and JEI recipe integration.
+
+---
+
+## 🤝 Compatibility & Modpack Notes
+- **Actually Additions**: Requires the base mod to load and function properly.
+- **JEI (Just Enough Items)**: Fully integrated for browsing and transfer of recipes.
+- **Modpacks**: You are free to distribute and include this mod in any modpack.
 
 ---
 
