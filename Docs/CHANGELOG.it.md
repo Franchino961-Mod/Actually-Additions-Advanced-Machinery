@@ -7,7 +7,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
-## [Unreleased]
+## [0.7.2] - Supporto Traduzioni e Configurazione Repository
 
 ### Aggiunto
 - Traduzioni per tedesco (`de_de`), spagnolo (`es_es`), francese (`fr_fr`), portoghese (`pt_br`), russo (`ru_ru`) e cinese (`zh_cn`).
