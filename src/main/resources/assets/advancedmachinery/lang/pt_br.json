@@ -1,0 +1,9 @@
+{
+  "block.advancedmachinery.advanced_empowerer": "Empoderador Avançado",
+  "item.advancedmachinery.speed_upgrade": "Melhoria de Velocidade",
+  "item.advancedmachinery.energy_upgrade": "Melhoria de Energia",
+  "itemGroup.advancedmachinery": "Advanced Machinery",
+  "container.advancedmachinery.advanced_empowerer": "Empoderador Avançado",
+  "tooltip.advancedmachinery.speed_upgrade": "Diminui o tempo de processamento.",
+  "tooltip.advancedmachinery.energy_upgrade": "Diminui o consumo de energia e aumenta a capacidade de energia."
+}
