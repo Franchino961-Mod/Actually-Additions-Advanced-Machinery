@@ -65,7 +65,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
             // Race condition o chunk non caricato: usa handler/data dummy
             // Non istanziamo una BlockEntity fasulla — solo strutture leggere
             this.blockEntity = null;
-            this.data = new SimpleContainerData(12);
+            this.data = new SimpleContainerData(18);
             addBlockEntitySlots(new ItemStackHandler(8));
         }
 
@@ -264,5 +264,12 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
 
     public BlockPos getBlockPos() {
         return blockEntity != null ? blockEntity.getBlockPos() : BlockPos.ZERO;
+    }
+
+    public int getSideConfig(int index) {
+        if (index >= 0 && index < 6) {
+            return data.get(12 + index);
+        }
+        return 4;
     }
 }
