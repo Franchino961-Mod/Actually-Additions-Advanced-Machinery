@@ -142,6 +142,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     private int currentEnergyPerTick = 0;
     private int currentTotalEnergy = 0;
     private int tickCounter = 0;
+    private final int[] sidedConfig = new int[] { 4, 4, 4, 4, 4, 4 };
 
     private final ItemStackHandler inventory = new ItemStackHandler(8) {
         @Override
@@ -386,6 +387,12 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                     case 9 -> singleItemMode ? 1 : 0;
                     case 10 -> currentEnergyPerTick;
                     case 11 -> currentTotalEnergy;
+                    case 12 -> sidedConfig[0];
+                    case 13 -> sidedConfig[1];
+                    case 14 -> sidedConfig[2];
+                    case 15 -> sidedConfig[3];
+                    case 16 -> sidedConfig[4];
+                    case 17 -> sidedConfig[5];
                     default -> 0;
                 };
             }
@@ -421,12 +428,18 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                     case 9 -> singleItemMode = value != 0;
                     case 10 -> currentEnergyPerTick = value;
                     case 11 -> currentTotalEnergy = value;
+                    case 12 -> sidedConfig[0] = value;
+                    case 13 -> sidedConfig[1] = value;
+                    case 14 -> sidedConfig[2] = value;
+                    case 15 -> sidedConfig[3] = value;
+                    case 16 -> sidedConfig[4] = value;
+                    case 17 -> sidedConfig[5] = value;
                 }
             }
 
             @Override
             public int getCount() {
-                return 12;
+                return 18;
             }
         };
     }
@@ -596,6 +609,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         tag.putBoolean("RoundRobin", roundRobin);
         tag.putBoolean("SingleItemMode", singleItemMode);
         tag.putInt("RoundRobinIndex", roundRobinIndex);
+        tag.putIntArray("SidedConfig", sidedConfig);
     }
 
     @Override
@@ -609,6 +623,10 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         this.roundRobin = tag.getBoolean("RoundRobin");
         this.singleItemMode = tag.getBoolean("SingleItemMode");
         this.roundRobinIndex = tag.contains("RoundRobinIndex") ? tag.getInt("RoundRobinIndex") : 1;
+        if (tag.contains("SidedConfig")) {
+            int[] arr = tag.getIntArray("SidedConfig");
+            System.arraycopy(arr, 0, this.sidedConfig, 0, Math.min(arr.length, 6));
+        }
         this.recipeDirty = true;
     }
 
@@ -663,6 +681,10 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     private void performAutoInput() {
         if (level == null) return;
         for (Direction direction : Direction.values()) {
+            int relIdx = getRelativeIndex(direction);
+            int mode = sidedConfig[relIdx];
+            if (mode == 0 || mode == 3) continue; // Disabled or Output Only
+
             BlockPos adjacentPos = this.worldPosition.relative(direction);
             IItemHandler adjacentHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK, adjacentPos, direction.getOpposite());
             if (adjacentHandler != null) {
@@ -671,7 +693,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                     for (int adjSlot = 0; adjSlot < adjacentHandler.getSlots(); adjSlot++) {
                         ItemStack stackInAdj = adjacentHandler.getStackInSlot(adjSlot);
                         if (!stackInAdj.isEmpty()) {
-                            if (isValidBaseItem(stackInAdj) && inventory.getStackInSlot(0).isEmpty()) {
+                            if ((mode == 1 || mode == 4) && isValidBaseItem(stackInAdj) && inventory.getStackInSlot(0).isEmpty()) {
                                 ItemStack extracted = adjacentHandler.extractItem(adjSlot, 1, false);
                                 if (!extracted.isEmpty()) {
                                     inventory.insertItem(0, extracted, false);
@@ -679,7 +701,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                                     continue;
                                 }
                             }
-                            if (isValidModifierItem(stackInAdj)) {
+                            if ((mode == 2 || mode == 4) && isValidModifierItem(stackInAdj)) {
                                 int targetSlot = findEmptyModifierSlot();
                                 if (targetSlot != -1) {
                                     ItemStack extracted = adjacentHandler.extractItem(adjSlot, 1, false);
@@ -731,6 +753,10 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         ItemStack outputStack = inventory.getStackInSlot(5);
         if (!outputStack.isEmpty()) {
             for (Direction direction : Direction.values()) {
+                int relIdx = getRelativeIndex(direction);
+                int mode = sidedConfig[relIdx];
+                if (mode == 0 || mode == 1 || mode == 2) continue; // Disabled or Input Only
+
                 BlockPos adjacentPos = this.worldPosition.relative(direction);
                 IItemHandler adjacentHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK, adjacentPos, direction.getOpposite());
                 if (adjacentHandler != null) {
@@ -837,6 +863,109 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                 inventory.setStackInSlot(baseSlot, temp);
                 break;
             }
+        }
+    }
+
+    public int getRelativeIndex(Direction absoluteDir) {
+        if (absoluteDir == null) return 4;
+        if (absoluteDir == Direction.UP) return 0;
+        if (absoluteDir == Direction.DOWN) return 1;
+
+        Direction facing = getBlockState().getValue(com.advancedmachinery.block.AdvancedEmpowererBlock.FACING);
+        if (absoluteDir == facing) return 2; // FRONT
+        if (absoluteDir == facing.getOpposite()) return 3; // BACK
+        if (absoluteDir == facing.getClockWise()) return 5; // RIGHT
+        if (absoluteDir == facing.getCounterClockWise()) return 4; // LEFT
+
+        return 4; // fallback
+    }
+
+    public void cycleSideConfig(int index) {
+        if (index >= 0 && index < 6) {
+            sidedConfig[index] = (sidedConfig[index] + 1) % 5;
+            setChanged();
+            if (level != null && !level.isClientSide) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            }
+        }
+    }
+
+    public IItemHandler getSidedItemHandler(Direction side) {
+        return new SidedItemHandlerWrapper(this, side);
+    }
+
+    public static class SidedItemHandlerWrapper implements IItemHandler {
+        private final AdvancedEmpowererBlockEntity be;
+        private final Direction side;
+
+        public SidedItemHandlerWrapper(AdvancedEmpowererBlockEntity be, Direction side) {
+            this.be = be;
+            this.side = side;
+        }
+
+        @Override
+        public int getSlots() {
+            return be.getInventory().getSlots();
+        }
+
+        @NotNull
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return be.getInventory().getStackInSlot(slot);
+        }
+
+        @NotNull
+        @Override
+        public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+            if (stack.isEmpty()) return ItemStack.EMPTY;
+            int relIdx = be.getRelativeIndex(side);
+            int mode = be.sidedConfig[relIdx];
+
+            if (mode == 0) return stack; // Disabled
+            if (mode == 3) return stack; // Output Only (no insertion)
+
+            if (mode == 1) { // Solo Basi
+                if (!be.isValidBaseItem(stack)) return stack;
+                if (slot != 0) return stack;
+            }
+            if (mode == 2) { // Solo Modificatori
+                if (!be.isValidModifierItem(stack)) return stack;
+                if (slot < 1 || slot > 4) return stack;
+            }
+
+            return be.getExternalItemHandler().insertItem(slot, stack, simulate);
+        }
+
+        @NotNull
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            int relIdx = be.getRelativeIndex(side);
+            int mode = be.sidedConfig[relIdx];
+
+            if (mode == 0) return ItemStack.EMPTY; // Disabled
+            if (mode == 1 || mode == 2) return ItemStack.EMPTY; // Solo input
+
+            if (slot == 5) {
+                return be.getInventory().extractItem(slot, amount, simulate);
+            }
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return be.getInventory().getSlotLimit(slot);
+        }
+
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            int relIdx = be.getRelativeIndex(side);
+            int mode = be.sidedConfig[relIdx];
+
+            if (mode == 0 || mode == 3) return false;
+            if (mode == 1) return slot == 0 && be.isValidBaseItem(stack);
+            if (mode == 2) return slot >= 1 && slot <= 4 && be.isValidModifierItem(stack);
+
+            return be.getInventory().isItemValid(slot, stack);
         }
     }
 }
