@@ -7,6 +7,36 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [0.8.1] - Ottimizzazione Ricettario e Traduzioni Complete
+
+### Aggiunto
+- **Caching delle Ricette**: Implementato un sistema di caching locale all'istanza della BlockEntity (`cachedRecipes`, `cachedBaseIngredients`, `cachedModifierIngredients`) per evitare costosi lookup del `RecipeManager` e iterazioni ripetute di stream ad ogni tick e inserimento.
+- **Traduzione GUI Completa**: Aggiunte traduzioni complete in 8 lingue per le nuove opzioni della GUI e i dettagli del tooltip di telemetria dell'energia.
+
+### Modificato
+- **Localizzazione GUI**: Sostituiti tutti i testi letterali hardcodate con `Component.translatable(...)` per supportare la localizzazione del client.
+
+---
+
+## [0.8.0] - Automazione Avanzata e Telemetria GUI
+
+### Aggiunto
+- **Auto Input**: Permette di risucchiare automaticamente gli ingredienti dei crafting dai contenitori adiacenti.
+- **Auto Output**: Espelle automaticamente i prodotti finiti dai contenitori adiacenti.
+- **Round Robin**: Distribuisce equamente gli ingredienti modificatori in arrivo tra i 4 slot esterni.
+- **Modalità Oggetto Singolo**: Limita la capienza degli slot di input (0-4) a 1 unità ciascuno (emulando i display stand).
+- **Pulsanti di Controllo Automazione**: Aggiunti 4 pulsanti interattivi `I`, `O`, `R`, `1` nella GUI principale per attivare o disattivare le rispettive impostazioni.
+- **Allineamento Automatico**: Gli ingredienti inseriti in disordine vengono scambiati di posto in automatico per posizionare l'oggetto base nello slot centrale 0.
+- **Filtri di Inserimento Rigidi**: L'inventario della macchina e il sided handler accettano solo basi nello slot 0, modificatori negli slot 1-4, e upgrade nei slot 6-7, bloccando inserimenti casuali.
+- **Telemetria Energetica Avanzata**: Visualizzazione nel tooltip dell'energia del costo della ricetta in FE, consumo in FE/t e dei bonus percentuali reali forniti dagli upgrade di velocità ed efficienza energetica.
+- **ToggleAutoSettingPayload**: Pacchetto di rete per sincronizzare dal client al server i cambi di stato delle impostazioni.
+
+### Modificato
+- **`ContainerData` Espanso**: Incrementati gli slot di sincronizzazione da 6 a 12 indici per includere i flag di automazione e le metriche di consumo.
+- **Wrapper Sided Capability**: Aggiornato `getSidedInventory` per ritornare il gestore di input dinamico centralizzato `externalItemHandler` con regole di inserimento rigide.
+
+---
+
 ## [0.7.2] - Supporto Traduzioni e Configurazione Repository
 
 ### Aggiunto
