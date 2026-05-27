@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.0] - Sided I/O Configurator (Update 9)
+
+### Added
+- **Sided I/O Configurator**: A new overlay panel in the Advanced Empowerer GUI, accessible via a configurator button "C" (representing a gear/config icon).
+- **Relative Side Configuration**: Supports configuring the 6 block faces relative to its horizontal facing orientation: Up (U), Down (D), Front (F), Back (B), Left (L), Right (R).
+- **Five Transfer Modes**: Each side can cycle through five modes, each color-coded:
+  - **Disabled** (Gray): Blocks item insertion and extraction on this face.
+  - **Base Input Only** (Blue): Only permits base item insertion into slot 0.
+  - **Modifier Input Only** (Yellow): Only permits modifier item insertion into slots 1-4.
+  - **Output Only** (Green): Only permits item extraction from the output slot 5.
+  - **Any** (Purple): Permits all default insertions and extractions.
+- **Relocated Automation Buttons**: Shifted the Auto Input (I) and Auto Output (O) configuration buttons into the new configurator side panel.
+- **Custom Sided Item Handler wrapper**: Integrated `SidedItemHandlerWrapper` that dynamically routes external pipes/hoppers based on the configured mode for each side.
+- **Improved Auto Push/Pull routing**: Made the block's internal tick auto-input and auto-output logic respect the configured side configuration modes.
+- **Multi-language support**: Expanded side configuration and transfer mode translations in English, Italian, German, Spanish, French, Portuguese, Russian, and Chinese.
+
+### Changed
+- **Relocated GUI controls**: Replaced the previous `I` and `O` button positions in the main GUI, shifting `R` (Round Robin) and `1` (Single Item Mode) to coordinate `y=24` to clean up the layout.
+- **Expanded simple Container Data**: Increased synced container integers from 12 to 18 slots to handle the six side states client-server.
+
+---
+
 ## [0.8.1] - Recipe Caching & Complete Localization
 
 ### Added
