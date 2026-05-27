@@ -11,7 +11,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.RangedWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,7 @@ public class AdvancedMachinery {
         ModCreativeTabs.CREATIVE_TABS.register(modEventBus);
 
         modEventBus.addListener(this::registerCapabilities);
+        modEventBus.addListener(this::registerNetworking);
 
         // Registrazione della GUI screen direttamente sul modEventBus.
         // Questo è il pattern moderno raccomandato in NeoForge 1.21.1,
@@ -47,6 +47,15 @@ public class AdvancedMachinery {
 
     private void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenuTypes.ADVANCED_EMPOWERER.get(), AdvancedEmpowererScreen::new);
+    }
+
+    private void registerNetworking(net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent event) {
+        net.neoforged.neoforge.network.registration.PayloadRegistrar registrar = event.registrar(MODID);
+        registrar.playToServer(
+            com.advancedmachinery.network.ToggleAutoSettingPayload.TYPE,
+            com.advancedmachinery.network.ToggleAutoSettingPayload.STREAM_CODEC,
+            com.advancedmachinery.network.ToggleAutoSettingPayload::handle
+        );
     }
 
     /**
@@ -79,12 +88,10 @@ public class AdvancedMachinery {
      * 6-7 → upgrade (non automatizzabili)
      */
     private static IItemHandler getSidedInventory(AdvancedEmpowererBlockEntity be, Direction side) {
-        ItemStackHandler inv = be.getInventory();
-
         if (side == Direction.DOWN) {
-            return new RangedWrapper(inv, 5, 6);
+            return new RangedWrapper(be.getInventory(), 5, 6);
         }
 
-        return new RangedWrapper(inv, 0, 5);
+        return be.getExternalItemHandler();
     }
 }
