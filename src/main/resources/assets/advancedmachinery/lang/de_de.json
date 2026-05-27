@@ -21,5 +21,18 @@
   "gui.advancedmachinery.energy_tooltip.recipe_cost": "\u00a7cRezeptkosten: \u00a7f%s FE",
   "gui.advancedmachinery.energy_tooltip.usage": "\u00a7cVerbrauch: \u00a7f%s FE/t",
   "gui.advancedmachinery.energy_tooltip.speed_upgrade": "\u00a7aGeschwindigkeit: \u00a7f-%s%% Verarbeitungszeit",
-  "gui.advancedmachinery.energy_tooltip.energy_upgrade": "\u00a76Effizienz: \u00a7f-%s%% Energieverbrauch"
+  "gui.advancedmachinery.energy_tooltip.energy_upgrade": "\u00a76Effizienz: \u00a7f-%s%% Energieverbrauch",
+  "gui.advancedmachinery.tooltip.configurator": "Seiten-I/O-Konfigurator",
+  "gui.advancedmachinery.side.up": "Oben (Auf)",
+  "gui.advancedmachinery.side.down": "Unten (Ab)",
+  "gui.advancedmachinery.side.front": "Vorne",
+  "gui.advancedmachinery.side.back": "Hinten",
+  "gui.advancedmachinery.side.left": "Links",
+  "gui.advancedmachinery.side.right": "Rechts",
+  "gui.advancedmachinery.tooltip.side_format": "%s: %s",
+  "gui.advancedmachinery.mode.disabled": "\u00a7cDeaktiviert",
+  "gui.advancedmachinery.mode.base": "\u00a79Nur Basis-Eingabe",
+  "gui.advancedmachinery.mode.modifier": "\u00a7eNur Modifikator-Eingabe",
+  "gui.advancedmachinery.mode.output": "\u00a7aNur Ausgabe",
+  "gui.advancedmachinery.mode.any": "\u00a7dBeliebig"
 }
