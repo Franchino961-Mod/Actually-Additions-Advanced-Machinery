@@ -88,10 +88,10 @@ public class AdvancedMachinery {
      * 6-7 → upgrade (non automatizzabili)
      */
     private static IItemHandler getSidedInventory(AdvancedEmpowererBlockEntity be, Direction side) {
-        if (side == Direction.DOWN) {
-            return new RangedWrapper(be.getInventory(), 5, 6);
+        if (side == null) {
+            return be.getExternalItemHandler();
         }
 
-        return be.getExternalItemHandler();
+        return be.getSidedItemHandler(side);
     }
 }
