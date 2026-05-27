@@ -21,5 +21,18 @@
   "gui.advancedmachinery.energy_tooltip.recipe_cost": "\u00a7c\u914d\u65b9\u6d88\u8017: \u00a7f%s FE",
   "gui.advancedmachinery.energy_tooltip.usage": "\u00a7c\u80fd\u8017: \u00a7f%s FE/t",
   "gui.advancedmachinery.energy_tooltip.speed_upgrade": "\u00a7a\u901f\u5ea6: \u00a7f-%s%% \u5de5\u4f5c\u65f6\u95f4",
-  "gui.advancedmachinery.energy_tooltip.energy_upgrade": "\u00a76\u6548\u7387: \u00a7f-%s%% \u80fd\u91cf\u6d88\u8017"
+  "gui.advancedmachinery.energy_tooltip.energy_upgrade": "\u00a76\u6548\u7387: \u00a7f-%s%% \u80fd\u91cf\u6d88\u8017",
+  "gui.advancedmachinery.tooltip.configurator": "输入/输出面配置器",
+  "gui.advancedmachinery.side.up": "顶部",
+  "gui.advancedmachinery.side.down": "底部",
+  "gui.advancedmachinery.side.front": "正面",
+  "gui.advancedmachinery.side.back": "背面",
+  "gui.advancedmachinery.side.left": "左侧",
+  "gui.advancedmachinery.side.right": "右侧",
+  "gui.advancedmachinery.tooltip.side_format": "%s: %s",
+  "gui.advancedmachinery.mode.disabled": "\u00a7c已禁用",
+  "gui.advancedmachinery.mode.base": "\u00a79仅基础物品输入",
+  "gui.advancedmachinery.mode.modifier": "\u00a7e仅修饰物物品输入",
+  "gui.advancedmachinery.mode.output": "\u00a7a仅输出",
+  "gui.advancedmachinery.mode.any": "\u00a7d任意"
 }
