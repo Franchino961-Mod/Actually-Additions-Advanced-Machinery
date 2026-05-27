@@ -87,7 +87,7 @@ Un potente addon per **Actually Additions** che introduce una versione avanzata 
 
 ## 🛠️ Risoluzione dei Problemi
 ### La macchina non elabora nulla!
-- Controlla che l'oggetto base sia nello slot centrale (slot 2) e i modifier negli slot circostanti.
+- Controlla che l'oggetto base sia nello slot centrale (slot 0) e i modifier negli slot circostanti.
 - Assicurati che la macchina abbia abbastanza Forge Energy (FE) immagazzinata.
 - Verifica che la ricetta sia una ricetta valida dell'Empowerer di Actually Additions controllando su JEI.
 - Assicurati che lo slot di output non sia pieno.
@@ -98,8 +98,8 @@ Un potente addon per **Actually Additions** che introduce una versione avanzata 
 **D: È compatibile con altri addon di Actually Additions?**
 R: Sì, finché usano il formato standard `EmpowererRecipe` di Actually Additions, tutte le ricette dovrebbero essere riconosciute automaticamente.
 
-**D: Posso automatizzare l'inserimento degli oggetti?**
-R: L'automazione diretta tramite tramogge nella macchina non è supportata nella versione attuale. Puoi tuttavia estrarre gli oggetti dallo slot di output usando tramogge posizionate sul blocco.
+**D: Posso automatizzare la macchina?**
+R: Sì! Usa sistemi intelligenti (AE2, Refined Storage, tubi) per l'inserimento (sopra/lati) ed estrai da sotto. Le tramogge vanilla sono consigliate solo per l'estrazione.
 
 ---
 
