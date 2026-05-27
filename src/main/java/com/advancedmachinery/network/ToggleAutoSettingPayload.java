@@ -17,6 +17,12 @@ public record ToggleAutoSettingPayload(BlockPos pos, int settingType) implements
     public static final int AUTO_OUTPUT = 1;
     public static final int ROUND_ROBIN = 2;
     public static final int SINGLE_ITEM_MODE = 3;
+    public static final int SIDE_UP = 4;
+    public static final int SIDE_DOWN = 5;
+    public static final int SIDE_FRONT = 6;
+    public static final int SIDE_BACK = 7;
+    public static final int SIDE_LEFT = 8;
+    public static final int SIDE_RIGHT = 9;
     public static final CustomPacketPayload.Type<ToggleAutoSettingPayload> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("advancedmachinery", "toggle_auto_setting"));
     public static final StreamCodec<FriendlyByteBuf, ToggleAutoSettingPayload> STREAM_CODEC;
 
@@ -40,6 +46,11 @@ public record ToggleAutoSettingPayload(BlockPos pos, int settingType) implements
                         case 1 -> empowerer.toggleAutoOutput();
                         case 2 -> empowerer.toggleRoundRobin();
                         case 3 -> empowerer.toggleSingleItemMode();
+                        default -> {
+                            if (payload.settingType() >= 4 && payload.settingType() <= 9) {
+                                empowerer.cycleSideConfig(payload.settingType() - 4);
+                            }
+                        }
                     }
                 }
             }
