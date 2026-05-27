@@ -21,5 +21,18 @@
   "gui.advancedmachinery.energy_tooltip.recipe_cost": "\u00a7c\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c \u0440\u0435\u0446\u0435\u043f\u0442\u0430: \u00a7f%s FE",
   "gui.advancedmachinery.energy_tooltip.usage": "\u00a7c\u041f\u043e\u0442\u0440\u0435\u0431\u043b\u0435\u043d\u0438\u0435: \u00a7f%s FE/\u0442",
   "gui.advancedmachinery.energy_tooltip.speed_upgrade": "\u00a7a\u0421\u043a\u043e\u0440\u043e\u0441\u0442\u044c: \u00a7f-%s%% \u0432\u0440\u0435\u043c\u0435\u043d\u0438 \u043e\u0431\u0440\u0430\u0432\u043e\u0442\u043a\u0438",
-  "gui.advancedmachinery.energy_tooltip.energy_upgrade": "\u00a76\u042d\u0444\u0444\u0435\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u044c: \u00a7f-%s%% \u044d\u043d\u0435\u0440\u0433\u043e\u043f\u043e\u0442\u0440\u0435\u0431\u043b\u0435\u043d\u0438\u044f"
+  "gui.advancedmachinery.energy_tooltip.energy_upgrade": "\u00a76\u042d\u0444\u0444\u0435\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u044c: \u00a7f-%s%% \u044d\u043d\u0435\u0440\u0433\u043e\u043f\u043e\u0442\u0440\u0435\u0431\u043b\u0435\u043d\u0438\u044f",
+  "gui.advancedmachinery.tooltip.configurator": "Конфигуратор сторон ввода-вывода",
+  "gui.advancedmachinery.side.up": "Верх (Вверх)",
+  "gui.advancedmachinery.side.down": "Низ (Вниз)",
+  "gui.advancedmachinery.side.front": "Перед",
+  "gui.advancedmachinery.side.back": "Зад",
+  "gui.advancedmachinery.side.left": "Лево",
+  "gui.advancedmachinery.side.right": "Право",
+  "gui.advancedmachinery.tooltip.side_format": "%s: %s",
+  "gui.advancedmachinery.mode.disabled": "\u00a7cОтключено",
+  "gui.advancedmachinery.mode.base": "\u00a79Только основы",
+  "gui.advancedmachinery.mode.modifier": "\u00a7eТолько модификаторы",
+  "gui.advancedmachinery.mode.output": "\u00a7aТолько вывод",
+  "gui.advancedmachinery.mode.any": "\u00a7dЛюбой"
 }
