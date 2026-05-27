@@ -5,5 +5,21 @@
   "itemGroup.advancedmachinery": "Advanced Machinery",
   "container.advancedmachinery.advanced_empowerer": "Empowerer Avancé",
   "tooltip.advancedmachinery.speed_upgrade": "Réduit le temps de traitement.",
-  "tooltip.advancedmachinery.energy_upgrade": "Réduit la consommation d'énergie et augmente la capacité d'énergie."
+  "tooltip.advancedmachinery.energy_upgrade": "Réduit la consommation d'énergie et augmente la capacité d'énergie.",
+  "gui.advancedmachinery.status.active": "\u00a7aACTIF",
+  "gui.advancedmachinery.status.inactive": "\u00a7cINACTIF",
+  "gui.advancedmachinery.tooltip.auto_input": "Insertion Automatique: %s",
+  "gui.advancedmachinery.tooltip.auto_output": "Extraction Automatique: %s",
+  "gui.advancedmachinery.tooltip.round_robin": "Round Robin: %s",
+  "gui.advancedmachinery.tooltip.round_robin.desc.1": "\u00a77Distribue les objets \u00e9quitablement",
+  "gui.advancedmachinery.tooltip.round_robin.desc.2": "\u00a77entre les emplacements de modificateurs",
+  "gui.advancedmachinery.tooltip.single_item": "Mode Objet Unique: %s",
+  "gui.advancedmachinery.tooltip.single_item.desc.1": "\u00a77Limite les emplacements d'entr\u00e9e \u00e0 1",
+  "gui.advancedmachinery.tooltip.single_item.desc.2": "\u00a77objet (comme les supports originaux)",
+  "gui.advancedmachinery.energy_tooltip.title": "\u00a7e\u00c9nergie",
+  "gui.advancedmachinery.energy_tooltip.value": "\u00a77%s / %s FE",
+  "gui.advancedmachinery.energy_tooltip.recipe_cost": "\u00a7cCo\u00fbt de la Recette: \u00a7f%s FE",
+  "gui.advancedmachinery.energy_tooltip.usage": "\u00a7cConsommation: \u00a7f%s FE/t",
+  "gui.advancedmachinery.energy_tooltip.speed_upgrade": "\u00a7aVitesse: \u00a7f-%s%% temps de travail",
+  "gui.advancedmachinery.energy_tooltip.energy_upgrade": "\u00a76Efficacit\u00e9: \u00a7f-%s%% d'utilisation d'\u00e9nergie"
 }
