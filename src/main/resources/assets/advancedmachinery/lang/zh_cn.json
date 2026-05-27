@@ -5,5 +5,21 @@
   "itemGroup.advancedmachinery": "高级机械",
   "container.advancedmachinery.advanced_empowerer": "高级充能台",
   "tooltip.advancedmachinery.speed_upgrade": "缩短处理时间。",
-  "tooltip.advancedmachinery.energy_upgrade": "降低能量消耗并提高能量容量。"
+  "tooltip.advancedmachinery.energy_upgrade": "降低能量消耗并提高能量容量。",
+  "gui.advancedmachinery.status.active": "\u00a7a\u542f\u7528",
+  "gui.advancedmachinery.status.inactive": "\u00a7c\u7981\u7528",
+  "gui.advancedmachinery.tooltip.auto_input": "\u81ea\u52a8\u8f93\u5165: %s",
+  "gui.advancedmachinery.tooltip.auto_output": "\u81ea\u52a8\u8f93\u51fa: %s",
+  "gui.advancedmachinery.tooltip.round_robin": "\u5faa\u73af\u5206\u914d: %s",
+  "gui.advancedmachinery.tooltip.round_robin.desc.1": "\u00a77\u5728\u4fee\u9970\u7269\u69ca\u4f4d\u4e4b\u95f4",
+  "gui.advancedmachinery.tooltip.round_robin.desc.2": "\u00a77\u5e73\u5747\u5206\u914d\u7269\u54c1",
+  "gui.advancedmachinery.tooltip.single_item": "\u5355\u7269\u54c1\u6a21\u5f0f: %s",
+  "gui.advancedmachinery.tooltip.single_item.desc.1": "\u00a77\u9650\u5236\u8f93\u5165\u69ca\u4f4d\u53ea\u80fd\u5bb9\u7eb3 1",
+  "gui.advancedmachinery.tooltip.single_item.desc.2": "\u00a77\u4e2a\u7269\u54c1\uff08\u5982\u540c\u539f\u7248\u5145\u80fd\u5ea7\uff09",
+  "gui.advancedmachinery.energy_tooltip.title": "\u00a7e\u80fd\u91cf",
+  "gui.advancedmachinery.energy_tooltip.value": "\u00a77%s / %s FE",
+  "gui.advancedmachinery.energy_tooltip.recipe_cost": "\u00a7c\u914d\u65b9\u6d88\u8017: \u00a7f%s FE",
+  "gui.advancedmachinery.energy_tooltip.usage": "\u00a7c\u80fd\u8017: \u00a7f%s FE/t",
+  "gui.advancedmachinery.energy_tooltip.speed_upgrade": "\u00a7a\u901f\u5ea6: \u00a7f-%s%% \u5de5\u4f5c\u65f6\u95f4",
+  "gui.advancedmachinery.energy_tooltip.energy_upgrade": "\u00a76\u6548\u7387: \u00a7f-%s%% \u80fd\u91cf\u6d88\u8017"
 }
