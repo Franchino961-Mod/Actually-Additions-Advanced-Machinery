@@ -7,6 +7,28 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [0.9.0] - Pannello di Configurazione dei Lati I/O (Update 9)
+
+### Aggiunto
+- **Configuratore dei Lati I/O**: Un nuovo pannello laterale a comparsa nella GUI dell'Advanced Empowerer, accessibile tramite il pulsante "C".
+- **Configurazione Relativa dei Lati**: Supporta la configurazione delle 6 facce del blocco relative al suo orientamento orizzontale: Alto (U), Basso (D), Fronte (F), Retro (B), Sinistra (L), Destra (R).
+- **Cinque Modalità di Trasferimento**: Ciascun lato può alternare ciclicamente cinque stati, con codifica a colori:
+  - **Disabilitato** (Grigio): Blocca completamente l'inserimento ed estrazione su quella faccia.
+  - **Solo Inserimento Basi** (Blu): Consente solo l'inserimento di oggetti base nello slot 0.
+  - **Solo Inserimento Modificatori** (Giallo): Consente solo l'inserimento di modificatori negli slot 1-4.
+  - **Solo Estrazione Prodotto** (Verde): Consente solo l'estrazione dal solo slot di output 5.
+  - **Qualsiasi** (Viola): Consente tutti gli inserimenti ed estrazioni standard.
+- **Riposizionamento Pulsanti Automazione**: Spostati i pulsanti di configurazione Auto Input (I) e Auto Output (O) all'interno del nuovo pannello laterale a comparsa.
+- **Wrapper Sided Item Handler Personalizzato**: Integrato `SidedItemHandlerWrapper` per instradare dinamicamente i tubi/hopper esterni a seconda della modalità impostata per ciascun lato.
+- **Auto Push/Pull Condizionato**: Aggiornata la logica di auto-inserimento ed auto-estrazione a tick affinché rispetti le modalità configurate per i vari lati.
+- **Supporto Multilingua**: Traduzioni per la configurazione dei lati e le modalità in inglese, italiano, tedesco, spagnolo, francese, portoghese, russo e cinese.
+
+### Modificato
+- **Riposizionamento Controlli GUI**: Rimossi i pulsanti `I` e `O` dalla GUI principale e spostati `R` (Round Robin) e `1` (Single Item Mode) a coordinate `y=24` per un design più pulito.
+- **Espansione Simple Container Data**: Incrementato il numero di variabili sincronizzate da 12 a 18 slot per gestire lo stato dei 6 lati tra client e server.
+
+---
+
 ## [0.8.1] - Ottimizzazione Ricettario e Traduzioni Complete
 
 ### Aggiunto
