@@ -87,7 +87,7 @@ A powerful addon for **Actually Additions** that introduces a fully functional, 
 
 ## 🛠️ Troubleshooting
 ### The machine is not processing!
-- Check that the base item is in the center slot (slot 2) and modifiers are in the surrounding slots.
+- Check that the base item is in the center slot (slot 0) and modifiers are in the surrounding slots.
 - Ensure the machine has enough Forge Energy (FE) stored.
 - Verify the recipe is a valid Actually Additions Empowerer recipe by checking JEI.
 - Make sure the output slot is not full.
@@ -98,8 +98,8 @@ A powerful addon for **Actually Additions** that introduces a fully functional, 
 **Q: Is this compatible with other Actually Additions addons?**
 A: Yes, as long as they use the standard `EmpowererRecipe` format from Actually Additions, all recipes should be recognized automatically.
 
-**Q: Can I automate item insertion?**
-A: Direct hopper automation into the machine is not supported in the current version. You can, however, extract items from the output slot using hoppers placed on the block.
+**Q: Can I automate the machine?**
+A: Yes! Use smart automation (AE2, Refined Storage, pipes) to insert items (top/sides) and extract from the bottom. Vanilla hoppers are only recommended for extraction.
 
 ---
 
