@@ -68,6 +68,12 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
 
         renderProgressArrow(guiGraphics, leftPos, topPos);
         renderEnergyBar(guiGraphics, leftPos, topPos);
+
+        // Pulsanti di configurazione automazione
+        drawAutoButton(guiGraphics, leftPos + 100, topPos + 24, menu.isAutoInput(), "I", mouseX, mouseY);
+        drawAutoButton(guiGraphics, leftPos + 114, topPos + 24, menu.isAutoOutput(), "O", mouseX, mouseY);
+        drawAutoButton(guiGraphics, leftPos + 100, topPos + 38, menu.isRoundRobin(), "R", mouseX, mouseY);
+        drawAutoButton(guiGraphics, leftPos + 114, topPos + 38, menu.isSingleItemMode(), "1", mouseX, mouseY);
     }
 
     private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
@@ -148,6 +154,7 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
         super.render(guiGraphics, mouseX, mouseY, delta);
         renderTooltip(guiGraphics, mouseX, mouseY);
         renderEnergyTooltip(guiGraphics, mouseX, mouseY);
+        renderAutomationTooltips(guiGraphics, mouseX, mouseY);
     }
 
     private void renderEnergyTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -158,11 +165,111 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
         int barTop = y + ENERGY_Y_TOP;
         int barBottom = barTop + ENERGY_HEIGHT;
 
-        if (mouseX >= barLeft && mouseX <= barRight
-                && mouseY >= barTop && mouseY <= barBottom) {
-            guiGraphics.renderTooltip(this.font,
-                    Component.literal(menu.getEnergy() + " / " + menu.getMaxEnergy() + " FE"),
-                    mouseX, mouseY);
+        if (mouseX >= barLeft && mouseX <= barRight && mouseY >= barTop && mouseY <= barBottom) {
+            java.util.List<Component> tooltip = new java.util.ArrayList<>();
+            tooltip.add(Component.translatable("gui.advancedmachinery.energy_tooltip.title"));
+            tooltip.add(Component.translatable("gui.advancedmachinery.energy_tooltip.value", formatEnergy(menu.getEnergy()), formatEnergy(menu.getMaxEnergy())));
+
+            int rfPerTick = menu.getEnergyPerTick();
+            int totalCost = menu.getTotalEnergyCost();
+            if (totalCost > 0) {
+                tooltip.add(Component.literal(""));
+                tooltip.add(Component.translatable("gui.advancedmachinery.energy_tooltip.recipe_cost", formatEnergy(totalCost)));
+                tooltip.add(Component.translatable("gui.advancedmachinery.energy_tooltip.usage", formatEnergy(rfPerTick)));
+            }
+
+            int speedUp = menu.getSpeedUpgradeCount();
+            int energyUp = menu.getEnergyUpgradeCount();
+            if (speedUp > 0 || energyUp > 0) {
+                tooltip.add(Component.literal(""));
+                if (speedUp > 0) {
+                    double speedMultiplier = Math.pow(10.0, (double) speedUp / 8.0);
+                    int timeReduction = (int) Math.round((1.0 - 1.0 / speedMultiplier) * 100.0);
+                    tooltip.add(Component.translatable("gui.advancedmachinery.energy_tooltip.speed_upgrade", timeReduction));
+                }
+                if (energyUp > 0) {
+                    double costMultiplier = Math.pow(10.0, - (double) energyUp / 8.0);
+                    int costReduction = (int) Math.round((1.0 - costMultiplier) * 100.0);
+                    tooltip.add(Component.translatable("gui.advancedmachinery.energy_tooltip.energy_upgrade", costReduction));
+                }
+            }
+
+            guiGraphics.renderTooltip(this.font, tooltip, java.util.Optional.empty(), mouseX, mouseY);
         }
+    }
+
+    private void renderAutomationTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        Component activeText = Component.translatable("gui.advancedmachinery.status.active");
+        Component inactiveText = Component.translatable("gui.advancedmachinery.status.inactive");
+
+        if (isHovering(100, 24, 12, 12, mouseX, mouseY)) {
+            Component status = menu.isAutoInput() ? activeText : inactiveText;
+            guiGraphics.renderTooltip(this.font, Component.translatable("gui.advancedmachinery.tooltip.auto_input", status), mouseX, mouseY);
+        }
+        if (isHovering(114, 24, 12, 12, mouseX, mouseY)) {
+            Component status = menu.isAutoOutput() ? activeText : inactiveText;
+            guiGraphics.renderTooltip(this.font, Component.translatable("gui.advancedmachinery.tooltip.auto_output", status), mouseX, mouseY);
+        }
+        if (isHovering(100, 38, 12, 12, mouseX, mouseY)) {
+            Component status = menu.isRoundRobin() ? activeText : inactiveText;
+            java.util.List<Component> tooltip = new java.util.ArrayList<>();
+            tooltip.add(Component.translatable("gui.advancedmachinery.tooltip.round_robin", status));
+            tooltip.add(Component.translatable("gui.advancedmachinery.tooltip.round_robin.desc.1"));
+            tooltip.add(Component.translatable("gui.advancedmachinery.tooltip.round_robin.desc.2"));
+            guiGraphics.renderTooltip(this.font, tooltip, java.util.Optional.empty(), mouseX, mouseY);
+        }
+        if (isHovering(114, 38, 12, 12, mouseX, mouseY)) {
+            Component status = menu.isSingleItemMode() ? activeText : inactiveText;
+            java.util.List<Component> tooltip = new java.util.ArrayList<>();
+            tooltip.add(Component.translatable("gui.advancedmachinery.tooltip.single_item", status));
+            tooltip.add(Component.translatable("gui.advancedmachinery.tooltip.single_item.desc.1"));
+            tooltip.add(Component.translatable("gui.advancedmachinery.tooltip.single_item.desc.2"));
+            guiGraphics.renderTooltip(this.font, tooltip, java.util.Optional.empty(), mouseX, mouseY);
+        }
+    }
+
+    private String formatEnergy(int energy) {
+        if (energy >= 1_000_000) {
+            return String.format("%.2fM", (double) energy / 1_000_000.0);
+        } else if (energy >= 1_000) {
+            return String.format("%.1fK", (double) energy / 1_000.0);
+        } else {
+            return String.valueOf(energy);
+        }
+    }
+
+    private void drawAutoButton(GuiGraphics g, int x, int y, boolean active, String label, int mouseX, int mouseY) {
+        int size = 12;
+        boolean hovered = mouseX >= x && mouseX < x + size && mouseY >= y && mouseY < y + size;
+        int bg = active ? 0xFF2E8B57 : 0xFF708090; 
+        if (hovered) {
+            bg = active ? 0xFF3CB371 : 0xFF8795A5;
+        }
+
+        g.fill(x, y, x + size, y + size, 0xFF3C3C3C);
+        g.fill(x + 1, y + 1, x + size - 1, y + size - 1, bg);
+        
+        int labelColor = active ? 0xFFFFFFFF : 0xFFDDDDDD;
+        g.drawString(this.font, label, x + 3, y + 2, labelColor, false);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = this.leftPos;
+        int y = this.topPos;
+        if (mouseX >= (double) (x + 100) && mouseX < (double) (x + 100 + 12) && mouseY >= (double) (y + 24) && mouseY < (double) (y + 24 + 12)) {
+            net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 0));
+            return true;
+        } else if (mouseX >= (double) (x + 114) && mouseX < (double) (x + 114 + 12) && mouseY >= (double) (y + 24) && mouseY < (double) (y + 24 + 12)) {
+            net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 1));
+            return true;
+        } else if (mouseX >= (double) (x + 100) && mouseX < (double) (x + 100 + 12) && mouseY >= (double) (y + 38) && mouseY < (double) (y + 38 + 12)) {
+            net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 2));
+            return true;
+        } else if (mouseX >= (double) (x + 114) && mouseX < (double) (x + 114 + 12) && mouseY >= (double) (y + 38) && mouseY < (double) (y + 38 + 12)) {
+            net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 3));
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 }
