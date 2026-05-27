@@ -21,7 +21,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeManager;
 
 import java.util.Optional;
 
@@ -116,9 +121,9 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
     // -------------------------------------------------------------------
     // Inventory layout (8 slot):
-    // 0 – Input modifier 1 (croce: top — GUI: 44, 24)
-    // 1 – Input modifier 2 (croce: left — GUI: 14, 54)
-    // 2 – Input BASE (croce: center — GUI: 44, 54)
+    // 0 – Input BASE (croce: center — GUI: 44, 54)
+    // 1 – Input modifier 1 (croce: top — GUI: 44, 24)
+    // 2 – Input modifier 2 (croce: left — GUI: 14, 54)
     // 3 – Input modifier 3 (croce: right — GUI: 74, 54)
     // 4 – Input modifier 4 (croce: bottom — GUI: 44, 84)
     // 5 – Output (read-only)
@@ -126,14 +131,26 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
     // 7 – Energy Upgrade (max 8)
     //
     // EmpowererRecipe.matches(base, m1, m2, m3, m4):
-    // Slot 2 = base, slot 0,1,3,4 = modifier.
+    // Slot 0 = base, slot 1,2,3,4 = modifier.
     // AA gestisce internamente le permutazioni dei modifier.
     // -------------------------------------------------------------------
+    private boolean autoInput = false;
+    private boolean autoOutput = false;
+    private boolean roundRobin = false;
+    private boolean singleItemMode = false;
+    private int roundRobinIndex = 1;
+    private int currentEnergyPerTick = 0;
+    private int currentTotalEnergy = 0;
+    private int tickCounter = 0;
+
     private final ItemStackHandler inventory = new ItemStackHandler(8) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
             recipeDirty = true;
+            if (level != null && !level.isClientSide) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            }
         }
 
         @Override
@@ -142,15 +159,162 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                 case 5 -> false; // output — no inserimento manuale
                 case 6 -> stack.getItem() == ModItems.SPEED_UPGRADE.get();
                 case 7 -> stack.getItem() == ModItems.ENERGY_UPGRADE.get();
-                default -> true; // slot 0-4 → input liberi
+                case 0 -> level == null || isValidBaseItem(stack);
+                case 1, 2, 3, 4 -> level == null || isValidModifierItem(stack);
+                default -> false;
             };
         }
 
         @Override
         public int getSlotLimit(int slot) {
+            if (singleItemMode && slot >= 0 && slot <= 4) {
+                return 1;
+            }
             return (slot == 6 || slot == 7) ? 8 : super.getSlotLimit(slot);
         }
     };
+
+    private RecipeManager lastRecipeManager = null;
+    private final java.util.List<RecipeHolder<EmpowererRecipe>> cachedRecipes = new java.util.ArrayList<>();
+    private final java.util.List<Ingredient> cachedBaseIngredients = new java.util.ArrayList<>();
+    private final java.util.List<Ingredient> cachedModifierIngredients = new java.util.ArrayList<>();
+
+    private void updateRecipeCache() {
+        if (level == null) return;
+        RecipeManager recipeManager = level.getRecipeManager();
+        if (lastRecipeManager == recipeManager) {
+            return;
+        }
+        lastRecipeManager = recipeManager;
+        cachedRecipes.clear();
+        cachedBaseIngredients.clear();
+        cachedModifierIngredients.clear();
+
+        for (RecipeHolder<EmpowererRecipe> holder : recipeManager.getAllRecipesFor(ActuallyRecipes.Types.EMPOWERING.get())) {
+            EmpowererRecipe recipe = holder.value();
+            cachedRecipes.add(holder);
+            cachedBaseIngredients.add(recipe.getInput());
+            cachedModifierIngredients.add(recipe.getStandOne());
+            cachedModifierIngredients.add(recipe.getStandTwo());
+            cachedModifierIngredients.add(recipe.getStandThree());
+            cachedModifierIngredients.add(recipe.getStandFour());
+        }
+    }
+
+    public boolean isValidBaseItem(ItemStack stack) {
+        if (level == null || stack.isEmpty()) return false;
+        updateRecipeCache();
+        for (Ingredient ing : cachedBaseIngredients) {
+            if (ing.test(stack)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isValidModifierItem(ItemStack stack) {
+        if (level == null || stack.isEmpty()) return false;
+        updateRecipeCache();
+        for (Ingredient ing : cachedModifierIngredients) {
+            if (ing.test(stack)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private final IItemHandler externalItemHandler = new IItemHandler() {
+        @Override
+        public int getSlots() {
+            return inventory.getSlots();
+        }
+
+        @NotNull
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return inventory.getStackInSlot(slot);
+        }
+
+        @NotNull
+        @Override
+        public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+            if (stack.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+
+            if (isValidBaseItem(stack)) {
+                ItemStack existing = inventory.getStackInSlot(0);
+                if (existing.isEmpty() || (ItemStack.isSameItemSameComponents(existing, stack) && existing.getCount() < inventory.getSlotLimit(0))) {
+                    return inventory.insertItem(0, stack, simulate);
+                }
+            }
+
+            if (isValidModifierItem(stack)) {
+                int targetSlot = findAvailableModifierSlot(stack);
+                if (targetSlot != -1) {
+                    return inventory.insertItem(targetSlot, stack, simulate);
+                }
+            }
+
+            if (stack.getItem() == ModItems.SPEED_UPGRADE.get()) {
+                return inventory.insertItem(6, stack, simulate);
+            } else if (stack.getItem() == ModItems.ENERGY_UPGRADE.get()) {
+                return inventory.insertItem(7, stack, simulate);
+            }
+
+            return stack;
+        }
+
+        @NotNull
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return slot == 5 ? inventory.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return inventory.getSlotLimit(slot);
+        }
+
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            return inventory.isItemValid(slot, stack);
+        }
+
+        private int findAvailableModifierSlot(ItemStack stack) {
+            if (!roundRobin && !singleItemMode) {
+                for (int s = 1; s <= 4; s++) {
+                    ItemStack existing = inventory.getStackInSlot(s);
+                    if (!existing.isEmpty() && ItemStack.isSameItemSameComponents(existing, stack) && existing.getCount() < inventory.getSlotLimit(s)) {
+                        return s;
+                    }
+                }
+                for (int s = 1; s <= 4; s++) {
+                    if (inventory.getStackInSlot(s).isEmpty()) {
+                        return s;
+                    }
+                }
+            } else {
+                for (int i = 0; i < 4; i++) {
+                    int s = 1 + (roundRobinIndex - 1 + i) % 4;
+                    ItemStack existing = inventory.getStackInSlot(s);
+                    if (existing.isEmpty()) {
+                        roundRobinIndex = 1 + (s - 1 + 1) % 4;
+                        return s;
+                    }
+                    if (!singleItemMode && ItemStack.isSameItemSameComponents(existing, stack) && existing.getCount() < inventory.getSlotLimit(s)) {
+                        roundRobinIndex = 1 + (s - 1 + 1) % 4;
+                        return s;
+                    }
+                }
+            }
+            return -1;
+        }
+    };
+
+    public IItemHandler getExternalItemHandler() {
+        return externalItemHandler;
+    }
 
     // Il supplier legge il conteggio degli Energy Upgrade direttamente
     // dall'inventario della BlockEntity — elimina l'accoppiamento implicito
@@ -216,6 +380,12 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                     case 3 -> (energy.getEnergyStored() >> 16) & 0xFFFF;
                     case 4 -> energy.getMaxEnergyStored() & 0xFFFF;
                     case 5 -> (energy.getMaxEnergyStored() >> 16) & 0xFFFF;
+                    case 6 -> autoInput ? 1 : 0;
+                    case 7 -> autoOutput ? 1 : 0;
+                    case 8 -> roundRobin ? 1 : 0;
+                    case 9 -> singleItemMode ? 1 : 0;
+                    case 10 -> currentEnergyPerTick;
+                    case 11 -> currentTotalEnergy;
                     default -> 0;
                 };
             }
@@ -225,8 +395,6 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                 switch (index) {
                     case 0 -> progress = value;
                     case 1 -> maxProgress = value;
-
-                    // Energia corrente: applica immediatamente unendo la parte ricevuta con quella memorizzata
                     case 2 -> {
                         pendingEnergyLow = value & 0xFFFF;
                         int currentHigh = (energy.getEnergyStored() >> 16) & 0xFFFF;
@@ -237,8 +405,6 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                         int full = ((value & 0xFFFF) << 16) | currentLow;
                         energy.setStored(full);
                     }
-
-                    // Capacità massima: applica immediatamente
                     case 4 -> {
                         pendingMaxEnergyLow = value & 0xFFFF;
                         int currentHigh = (energy.getClientMaxEnergy() >> 16) & 0xFFFF;
@@ -249,12 +415,18 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                         int full = ((value & 0xFFFF) << 16) | currentLow;
                         energy.setClientMaxEnergy(full);
                     }
+                    case 6 -> autoInput = value != 0;
+                    case 7 -> autoOutput = value != 0;
+                    case 8 -> roundRobin = value != 0;
+                    case 9 -> singleItemMode = value != 0;
+                    case 10 -> currentEnergyPerTick = value;
+                    case 11 -> currentTotalEnergy = value;
                 }
             }
 
             @Override
             public int getCount() {
-                return 6;
+                return 12;
             }
         };
     }
@@ -281,12 +453,29 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         if (level == null || level.isClientSide)
             return;
 
+        tickCounter++;
+        if (tickCounter % 10 == 0) {
+            if (autoOutput) {
+                performAutoOutput();
+            }
+            if (autoInput) {
+                performAutoInput();
+            }
+            if (roundRobin) {
+                redistributeModifierSlots();
+            }
+        }
+
+        autoAlignIngredients();
+
         Optional<RecipeHolder<EmpowererRecipe>> recipeOpt = getRecipe();
         if (recipeOpt.isPresent()) {
             EmpowererRecipe recipe = recipeOpt.get().value();
             this.maxProgress = getModifiedTime(recipe.getTime());
 
             int energyPerTick = getEnergyPerTick(recipe);
+            this.currentEnergyPerTick = energyPerTick;
+            this.currentTotalEnergy = energyPerTick * this.maxProgress;
 
             if (this.energy.getEnergyStored() >= energyPerTick) {
 
@@ -304,6 +493,8 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
                 setChanged();
             }
         } else {
+            this.currentEnergyPerTick = 0;
+            this.currentTotalEnergy = 0;
             if (this.progress != 0) {
                 this.progress = 0;
                 setChanged();
@@ -313,7 +504,7 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
 
     // -------------------------------------------------------------------
     // Recipe matching
-    // Slot 2 = base (centro), slot 0,1,3,4 = modifier.
+    // Slot 0 = base (centro), slot 1,2,3,4 = modifier.
     // Cache invalidata ogni volta che l'inventario cambia.
     // -------------------------------------------------------------------
     private Optional<RecipeHolder<EmpowererRecipe>> getRecipe() {
@@ -321,15 +512,14 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
             return Optional.empty();
 
         if (recipeDirty || cachedRecipe == null) {
-            ItemStack base = inventory.getStackInSlot(2); // center
-            ItemStack m1 = inventory.getStackInSlot(0); // top
-            ItemStack m2 = inventory.getStackInSlot(1); // left
+            ItemStack base = inventory.getStackInSlot(0); // center (base)
+            ItemStack m1 = inventory.getStackInSlot(1); // top
+            ItemStack m2 = inventory.getStackInSlot(2); // left
             ItemStack m3 = inventory.getStackInSlot(3); // right
             ItemStack m4 = inventory.getStackInSlot(4); // bottom
 
-            cachedRecipe = level.getRecipeManager()
-                    .getAllRecipesFor(ActuallyRecipes.Types.EMPOWERING.get())
-                    .stream()
+            updateRecipeCache();
+            cachedRecipe = cachedRecipes.stream()
                     .filter(r -> r.value().matches(base, m1, m2, m3, m4))
                     .findFirst();
             recipeDirty = false;
@@ -401,16 +591,252 @@ public class AdvancedEmpowererBlockEntity extends BlockEntity implements MenuPro
         tag.put("Inventory", inventory.serializeNBT(registries));
         tag.putInt("Energy", energy.getEnergyStored());
         tag.putInt("Progress", progress);
+        tag.putBoolean("AutoInput", autoInput);
+        tag.putBoolean("AutoOutput", autoOutput);
+        tag.putBoolean("RoundRobin", roundRobin);
+        tag.putBoolean("SingleItemMode", singleItemMode);
+        tag.putInt("RoundRobinIndex", roundRobinIndex);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("Inventory"));
-        // setStored() ora clamp correttamente — safe anche se il valore NBT
-        // supera la capacità attuale (es. dopo aver rimosso degli Energy Upgrade).
         energy.setStored(tag.getInt("Energy"));
         this.progress = tag.getInt("Progress");
+        this.autoInput = tag.getBoolean("AutoInput");
+        this.autoOutput = tag.getBoolean("AutoOutput");
+        this.roundRobin = tag.getBoolean("RoundRobin");
+        this.singleItemMode = tag.getBoolean("SingleItemMode");
+        this.roundRobinIndex = tag.contains("RoundRobinIndex") ? tag.getInt("RoundRobinIndex") : 1;
         this.recipeDirty = true;
+    }
+
+    @Nullable
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return this.saveWithoutMetadata(registries);
+    }
+
+    public boolean isAutoInput() { return autoInput; }
+    public boolean isAutoOutput() { return autoOutput; }
+    public boolean isRoundRobin() { return roundRobin; }
+    public boolean isSingleItemMode() { return singleItemMode; }
+
+    public void toggleAutoInput() {
+        this.autoInput = !this.autoInput;
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    public void toggleAutoOutput() {
+        this.autoOutput = !this.autoOutput;
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    public void toggleRoundRobin() {
+        this.roundRobin = !this.roundRobin;
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    public void toggleSingleItemMode() {
+        this.singleItemMode = !this.singleItemMode;
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    private void performAutoInput() {
+        if (level == null) return;
+        for (Direction direction : Direction.values()) {
+            BlockPos adjacentPos = this.worldPosition.relative(direction);
+            IItemHandler adjacentHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK, adjacentPos, direction.getOpposite());
+            if (adjacentHandler != null) {
+                while (true) {
+                    boolean madeProgress = false;
+                    for (int adjSlot = 0; adjSlot < adjacentHandler.getSlots(); adjSlot++) {
+                        ItemStack stackInAdj = adjacentHandler.getStackInSlot(adjSlot);
+                        if (!stackInAdj.isEmpty()) {
+                            if (isValidBaseItem(stackInAdj) && inventory.getStackInSlot(0).isEmpty()) {
+                                ItemStack extracted = adjacentHandler.extractItem(adjSlot, 1, false);
+                                if (!extracted.isEmpty()) {
+                                    inventory.insertItem(0, extracted, false);
+                                    madeProgress = true;
+                                    continue;
+                                }
+                            }
+                            if (isValidModifierItem(stackInAdj)) {
+                                int targetSlot = findEmptyModifierSlot();
+                                if (targetSlot != -1) {
+                                    ItemStack extracted = adjacentHandler.extractItem(adjSlot, 1, false);
+                                    if (!extracted.isEmpty()) {
+                                        inventory.insertItem(targetSlot, extracted, false);
+                                        madeProgress = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (!madeProgress || !hasEmptyInputSlot()) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private int findEmptyModifierSlot() {
+        if (roundRobin) {
+            for (int i = 0; i < 4; i++) {
+                int slot = 1 + (roundRobinIndex - 1 + i) % 4;
+                if (inventory.getStackInSlot(slot).isEmpty()) {
+                    roundRobinIndex = 1 + (slot - 1 + 1) % 4;
+                    return slot;
+                }
+            }
+        } else {
+            for (int slot = 1; slot <= 4; slot++) {
+                if (inventory.getStackInSlot(slot).isEmpty()) {
+                    return slot;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private boolean hasEmptyInputSlot() {
+        if (inventory.getStackInSlot(0).isEmpty()) return true;
+        for (int slot = 1; slot <= 4; slot++) {
+            if (inventory.getStackInSlot(slot).isEmpty()) return true;
+        }
+        return false;
+    }
+
+    private void performAutoOutput() {
+        if (level == null) return;
+        ItemStack outputStack = inventory.getStackInSlot(5);
+        if (!outputStack.isEmpty()) {
+            for (Direction direction : Direction.values()) {
+                BlockPos adjacentPos = this.worldPosition.relative(direction);
+                IItemHandler adjacentHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK, adjacentPos, direction.getOpposite());
+                if (adjacentHandler != null) {
+                    for (int i = 0; i < adjacentHandler.getSlots(); i++) {
+                        ItemStack remainder = adjacentHandler.insertItem(i, outputStack.copy(), false);
+                        if (remainder.getCount() < outputStack.getCount()) {
+                            int inserted = outputStack.getCount() - remainder.getCount();
+                            inventory.extractItem(5, inserted, false);
+                            outputStack = inventory.getStackInSlot(5);
+                            if (outputStack.isEmpty()) {
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void redistributeModifierSlots() {
+        java.util.Map<ItemStack, java.util.List<Integer>> itemSlots = new java.util.HashMap<>();
+
+        for (int slot = 1; slot <= 4; slot++) {
+            ItemStack stack = inventory.getStackInSlot(slot);
+            if (!stack.isEmpty()) {
+                boolean found = false;
+                for (java.util.Map.Entry<ItemStack, java.util.List<Integer>> entry : itemSlots.entrySet()) {
+                    if (ItemStack.isSameItemSameComponents(entry.getKey(), stack)) {
+                        entry.getValue().add(slot);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    java.util.List<Integer> slots = new java.util.ArrayList<>();
+                    slots.add(slot);
+                    itemSlots.put(stack.copy(), slots);
+                }
+            }
+        }
+
+        for (java.util.Map.Entry<ItemStack, java.util.List<Integer>> entry : itemSlots.entrySet()) {
+            java.util.List<Integer> slots = entry.getValue();
+            if (slots.size() > 1) {
+                int totalCount = 0;
+                for (int slot : slots) {
+                    totalCount += inventory.getStackInSlot(slot).getCount();
+                }
+
+                int countPerSlot = totalCount / slots.size();
+                int remainder = totalCount % slots.size();
+                ItemStack template = entry.getKey();
+
+                for (int i = 0; i < slots.size(); i++) {
+                    int slot = slots.get(i);
+                    int newCount = countPerSlot + (i < remainder ? 1 : 0);
+                    if (newCount > 0) {
+                        ItemStack newStack = template.copy();
+                        newStack.setCount(newCount);
+                        inventory.setStackInSlot(slot, newStack);
+                    } else {
+                        inventory.setStackInSlot(slot, ItemStack.EMPTY);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Controlla se gli oggetti inseriti in qualsiasi ordine negli slot di input (0-4)
+     * formano una ricetta valida. Se sì, e l'oggetto base non si trova nello slot 0 (centro),
+     * scambia la posizione del base con l'oggetto attualmente nello slot 0 in modo da
+     * allineare automaticamente gli ingredienti per l'avvio del crafting.
+     */
+    private void autoAlignIngredients() {
+        if (level == null || level.isClientSide || !recipeDirty)
+            return;
+
+        for (int baseSlot = 1; baseSlot < 5; baseSlot++) {
+            ItemStack base = inventory.getStackInSlot(baseSlot);
+            if (base.isEmpty())
+                continue;
+
+            ItemStack[] mods = new ItemStack[4];
+            int modIdx = 0;
+            for (int slot = 0; slot < 5; slot++) {
+                if (slot != baseSlot) {
+                    mods[modIdx++] = inventory.getStackInSlot(slot);
+                }
+            }
+
+            final ItemStack m1 = mods[0];
+            final ItemStack m2 = mods[1];
+            final ItemStack m3 = mods[2];
+            final ItemStack m4 = mods[3];
+
+            updateRecipeCache();
+            boolean matches = cachedRecipes.stream()
+                    .anyMatch(r -> r.value().matches(base, m1, m2, m3, m4));
+
+            if (matches) {
+                ItemStack temp = inventory.getStackInSlot(0).copy();
+                inventory.setStackInSlot(0, inventory.getStackInSlot(baseSlot).copy());
+                inventory.setStackInSlot(baseSlot, temp);
+                break;
+            }
+        }
     }
 }
