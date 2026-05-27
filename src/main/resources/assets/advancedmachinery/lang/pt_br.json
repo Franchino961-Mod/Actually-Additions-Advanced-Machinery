@@ -5,5 +5,21 @@
   "itemGroup.advancedmachinery": "Advanced Machinery",
   "container.advancedmachinery.advanced_empowerer": "Empoderador Avançado",
   "tooltip.advancedmachinery.speed_upgrade": "Diminui o tempo de processamento.",
-  "tooltip.advancedmachinery.energy_upgrade": "Diminui o consumo de energia e aumenta a capacidade de energia."
+  "tooltip.advancedmachinery.energy_upgrade": "Diminui o consumo de energia e aumenta a capacidade de energia.",
+  "gui.advancedmachinery.status.active": "\u00a7aATIVO",
+  "gui.advancedmachinery.status.inactive": "\u00a7cINATIVO",
+  "gui.advancedmachinery.tooltip.auto_input": "Entrada Autom\u00e1tica: %s",
+  "gui.advancedmachinery.tooltip.auto_output": "Sa\u00edda Autom\u00e1tica: %s",
+  "gui.advancedmachinery.tooltip.round_robin": "Round Robin: %s",
+  "gui.advancedmachinery.tooltip.round_robin.desc.1": "\u00a77Distribui os itens igualmente",
+  "gui.advancedmachinery.tooltip.round_robin.desc.2": "\u00a77entre os compartimentos de modificadores",
+  "gui.advancedmachinery.tooltip.single_item": "Modo de Item \u00danico: %s",
+  "gui.advancedmachinery.tooltip.single_item.desc.1": "\u00a77Limita os compartimentos de entrada",
+  "gui.advancedmachinery.tooltip.single_item.desc.2": "\u00a77a 1 item (como suportes originais)",
+  "gui.advancedmachinery.energy_tooltip.title": "\u00a7eEnergia",
+  "gui.advancedmachinery.energy_tooltip.value": "\u00a77%s / %s FE",
+  "gui.advancedmachinery.energy_tooltip.recipe_cost": "\u00a7cCusto da Receita: \u00a7f%s FE",
+  "gui.advancedmachinery.energy_tooltip.usage": "\u00a7cConsumo: \u00a7f%s FE/t",
+  "gui.advancedmachinery.energy_tooltip.speed_upgrade": "\u00a7aVelocidade: \u00a7f-%s%% tempo de trabalho",
+  "gui.advancedmachinery.energy_tooltip.energy_upgrade": "\u00a76Efici\u00eancia: \u00a7f-%s%% uso de energia"
 }
