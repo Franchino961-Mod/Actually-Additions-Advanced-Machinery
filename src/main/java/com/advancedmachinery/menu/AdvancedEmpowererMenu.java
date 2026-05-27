@@ -65,7 +65,7 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
             // Race condition o chunk non caricato: usa handler/data dummy
             // Non istanziamo una BlockEntity fasulla — solo strutture leggere
             this.blockEntity = null;
-            this.data = new SimpleContainerData(6);
+            this.data = new SimpleContainerData(12);
             addBlockEntitySlots(new ItemStackHandler(8));
         }
 
@@ -78,9 +78,9 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
     // Slot layout GUI — coordinate dalla texture advanced_empowerer.png
     //
     // Indice Inv Posizione Ruolo
-    // 0 0 ( 44, 24) Input 0 – centro-alto (croce: top)
-    // 1 1 ( 14, 54) Input 1 – sinistra (croce: left)
-    // 2 2 ( 44, 54) Input 2 – centro (croce: center / base)
+    // 0 0 ( 44, 54) Input 0 – centro (croce: center / base)
+    // 1 1 ( 44, 24) Input 1 – centro-alto (croce: top)
+    // 2 2 ( 14, 54) Input 2 – sinistra (croce: left)
     // 3 3 ( 74, 54) Input 3 – destra (croce: right)
     // 4 4 ( 44, 84) Input 4 – centro-basso (croce: bottom)
     // 5 5 (125, 54) Output (read-only)
@@ -91,9 +91,9 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
     // -----------------------------------------------------------------------
     private void addBlockEntitySlots(IItemHandler handler) {
         // Input a croce — coordinate dalla texture aggiornata
-        addSlot(new SlotItemHandler(handler, 0, 44, 24)); // top
-        addSlot(new SlotItemHandler(handler, 1, 14, 54)); // left
-        addSlot(new SlotItemHandler(handler, 2, 44, 54)); // center (base)
+        addSlot(new SlotItemHandler(handler, 0, 44, 54)); // center (base)
+        addSlot(new SlotItemHandler(handler, 1, 44, 24)); // top
+        addSlot(new SlotItemHandler(handler, 2, 14, 54)); // left
         addSlot(new SlotItemHandler(handler, 3, 74, 54)); // right
         addSlot(new SlotItemHandler(handler, 4, 44, 84)); // bottom
 
@@ -228,5 +228,41 @@ public class AdvancedEmpowererMenu extends AbstractContainerMenu {
 
     public AdvancedEmpowererBlockEntity getBlockEntity() {
         return blockEntity;
+    }
+
+    public boolean isAutoInput() {
+        return data.get(6) != 0;
+    }
+
+    public boolean isAutoOutput() {
+        return data.get(7) != 0;
+    }
+
+    public boolean isRoundRobin() {
+        return data.get(8) != 0;
+    }
+
+    public boolean isSingleItemMode() {
+        return data.get(9) != 0;
+    }
+
+    public int getEnergyPerTick() {
+        return data.get(10);
+    }
+
+    public int getTotalEnergyCost() {
+        return data.get(11);
+    }
+
+    public int getSpeedUpgradeCount() {
+        return getSlot(6).getItem().getCount();
+    }
+
+    public int getEnergyUpgradeCount() {
+        return getSlot(7).getItem().getCount();
+    }
+
+    public BlockPos getBlockPos() {
+        return blockEntity != null ? blockEntity.getBlockPos() : BlockPos.ZERO;
     }
 }
