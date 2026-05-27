@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.1] - Recipe Caching & Complete Localization
+
+### Added
+- **Recipe Caching System**: Implemented local instance caching (`cachedRecipes`, `cachedBaseIngredients`, `cachedModifierIngredients`) in the BlockEntity to avoid expensive `RecipeManager` database lookups and stream executions on every tick or item insertion.
+- **Complete GUI Translation**: Added full translations in 8 languages for the new GUI settings and energy telemetry tooltips.
+
+### Changed
+- **GUI Localization**: Replaced all hardcoded literal strings with `Component.translatable(...)` to support client-side localization.
+
+---
+
+## [0.8.0] - Advanced Automation & GUI Telemetry
+
+### Added
+- **Auto Input**: Automatically pulls crafting ingredients from adjacent inventories.
+- **Auto Output**: Automatically pushes crafted items to adjacent inventories.
+- **Round Robin**: Distributes incoming modifier items evenly across the 4 modifier slots.
+- **Single Item Mode**: Restricts input slot stack sizes to 1 item (matching display stands behavior).
+- **Automation Control Buttons**: Added 4 interactive GUI buttons `I`, `O`, `R`, `1` to toggle automation settings on and off.
+- **Automatic Alignment**: Crafting ingredients inserted in random order are automatically swapped to place the base item in the central slot 0.
+- **Strict Input Filtering**: The machine inventory and sided handler restrict slot 0 to valid base items, slots 1-4 to modifiers, slots 6-7 to upgrades, and block random item insertion.
+- **Advanced Energy Telemetry**: Added total recipe cost, FE/t usage, and real percentage bonuses for speed/efficiency upgrades to the energy bar tooltip.
+- **ToggleAutoSettingPayload**: Network packet to synchronize settings toggles from the client to the server.
+
+### Changed
+- **Expanded `ContainerData`**: Increased container data synchronization slots from 6 to 12 to include automation flags and energy consumption metrics.
+- **Sided Capability Wrapper**: Updated `getSidedInventory` to return the centralized `externalItemHandler` to respect strict input routing rules.
+
+---
+
 ## [0.7.2] - Translation Support & Repository Configuration
 
 ### Added
