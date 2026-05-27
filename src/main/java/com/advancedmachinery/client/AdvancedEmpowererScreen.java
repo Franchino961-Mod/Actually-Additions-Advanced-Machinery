@@ -44,6 +44,8 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
     private static final int ENERGY_U = 176;
     private static final int ENERGY_V = 17;
 
+    private boolean showSidedConfig = false;
+
     public AdvancedEmpowererScreen(AdvancedEmpowererMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = GUI_WIDTH;
@@ -69,11 +71,33 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
         renderProgressArrow(guiGraphics, leftPos, topPos);
         renderEnergyBar(guiGraphics, leftPos, topPos);
 
-        // Pulsanti di configurazione automazione
-        drawAutoButton(guiGraphics, leftPos + 100, topPos + 24, menu.isAutoInput(), "I", mouseX, mouseY);
-        drawAutoButton(guiGraphics, leftPos + 114, topPos + 24, menu.isAutoOutput(), "O", mouseX, mouseY);
-        drawAutoButton(guiGraphics, leftPos + 100, topPos + 38, menu.isRoundRobin(), "R", mouseX, mouseY);
-        drawAutoButton(guiGraphics, leftPos + 114, topPos + 38, menu.isSingleItemMode(), "1", mouseX, mouseY);
+        // Pulsanti di configurazione automazione (Round Robin e Single Item Mode spostati a y=24)
+        drawAutoButton(guiGraphics, leftPos + 100, topPos + 24, menu.isRoundRobin(), "R", mouseX, mouseY);
+        drawAutoButton(guiGraphics, leftPos + 114, topPos + 24, menu.isSingleItemMode(), "1", mouseX, mouseY);
+
+        // Pulsante di toggle per la configurazione dei lati (C)
+        drawAutoButton(guiGraphics, leftPos + 134, topPos + 90, showSidedConfig, "C", mouseX, mouseY);
+
+        // Disegno del pannello laterale se showSidedConfig è attivo
+        if (showSidedConfig) {
+            // Sfondo pannello laterale a sinistra
+            guiGraphics.fill(leftPos - 60, topPos + 18, leftPos, topPos + 118, 0xFF2D2D2D);
+            guiGraphics.fill(leftPos - 60, topPos + 18, leftPos - 59, topPos + 118, 0xFF3C3C3C); // Bordo sinistro
+            guiGraphics.fill(leftPos - 60, topPos + 18, leftPos, topPos + 19, 0xFF3C3C3C); // Bordo superiore
+            guiGraphics.fill(leftPos - 60, topPos + 117, leftPos, topPos + 118, 0xFF3C3C3C); // Bordo inferiore
+
+            // 6 bottoni dei lati a croce spiegata (U, D, F, B, L, R)
+            drawColorButton(guiGraphics, leftPos - 36, topPos + 26, menu.getSideConfig(0), "U", mouseX, mouseY);
+            drawColorButton(guiGraphics, leftPos - 50, topPos + 40, menu.getSideConfig(4), "L", mouseX, mouseY);
+            drawColorButton(guiGraphics, leftPos - 36, topPos + 40, menu.getSideConfig(2), "F", mouseX, mouseY);
+            drawColorButton(guiGraphics, leftPos - 22, topPos + 40, menu.getSideConfig(5), "R", mouseX, mouseY);
+            drawColorButton(guiGraphics, leftPos - 36, topPos + 54, menu.getSideConfig(1), "D", mouseX, mouseY);
+            drawColorButton(guiGraphics, leftPos - 36, topPos + 68, menu.getSideConfig(3), "B", mouseX, mouseY);
+
+            // Auto Input (I) e Auto Output (O) posizionati in fondo al pannello
+            drawAutoButton(guiGraphics, leftPos - 42, topPos + 90, menu.isAutoInput(), "I", mouseX, mouseY);
+            drawAutoButton(guiGraphics, leftPos - 24, topPos + 90, menu.isAutoOutput(), "O", mouseX, mouseY);
+        }
     }
 
     private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
@@ -202,15 +226,8 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
         Component activeText = Component.translatable("gui.advancedmachinery.status.active");
         Component inactiveText = Component.translatable("gui.advancedmachinery.status.inactive");
 
+        // R (Round Robin) - ora a y=24
         if (isHovering(100, 24, 12, 12, mouseX, mouseY)) {
-            Component status = menu.isAutoInput() ? activeText : inactiveText;
-            guiGraphics.renderTooltip(this.font, Component.translatable("gui.advancedmachinery.tooltip.auto_input", status), mouseX, mouseY);
-        }
-        if (isHovering(114, 24, 12, 12, mouseX, mouseY)) {
-            Component status = menu.isAutoOutput() ? activeText : inactiveText;
-            guiGraphics.renderTooltip(this.font, Component.translatable("gui.advancedmachinery.tooltip.auto_output", status), mouseX, mouseY);
-        }
-        if (isHovering(100, 38, 12, 12, mouseX, mouseY)) {
             Component status = menu.isRoundRobin() ? activeText : inactiveText;
             java.util.List<Component> tooltip = new java.util.ArrayList<>();
             tooltip.add(Component.translatable("gui.advancedmachinery.tooltip.round_robin", status));
@@ -218,7 +235,8 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
             tooltip.add(Component.translatable("gui.advancedmachinery.tooltip.round_robin.desc.2"));
             guiGraphics.renderTooltip(this.font, tooltip, java.util.Optional.empty(), mouseX, mouseY);
         }
-        if (isHovering(114, 38, 12, 12, mouseX, mouseY)) {
+        // 1 (Single Item Mode) - ora a y=24
+        if (isHovering(114, 24, 12, 12, mouseX, mouseY)) {
             Component status = menu.isSingleItemMode() ? activeText : inactiveText;
             java.util.List<Component> tooltip = new java.util.ArrayList<>();
             tooltip.add(Component.translatable("gui.advancedmachinery.tooltip.single_item", status));
@@ -226,6 +244,60 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
             tooltip.add(Component.translatable("gui.advancedmachinery.tooltip.single_item.desc.2"));
             guiGraphics.renderTooltip(this.font, tooltip, java.util.Optional.empty(), mouseX, mouseY);
         }
+        // C (Configuratore Lati)
+        if (isHovering(134, 90, 12, 12, mouseX, mouseY)) {
+            guiGraphics.renderTooltip(this.font, Component.translatable("gui.advancedmachinery.tooltip.configurator"), mouseX, mouseY);
+        }
+
+        if (showSidedConfig) {
+            // Auto Input (I)
+            if (isHovering(-42, 90, 12, 12, mouseX, mouseY)) {
+                Component status = menu.isAutoInput() ? activeText : inactiveText;
+                guiGraphics.renderTooltip(this.font, Component.translatable("gui.advancedmachinery.tooltip.auto_input", status), mouseX, mouseY);
+            }
+            // Auto Output (O)
+            if (isHovering(-24, 90, 12, 12, mouseX, mouseY)) {
+                Component status = menu.isAutoOutput() ? activeText : inactiveText;
+                guiGraphics.renderTooltip(this.font, Component.translatable("gui.advancedmachinery.tooltip.auto_output", status), mouseX, mouseY);
+            }
+
+            // 6 Lati
+            if (isHovering(-36, 26, 12, 12, mouseX, mouseY)) {
+                renderSideTooltip(guiGraphics, "gui.advancedmachinery.side.up", menu.getSideConfig(0), mouseX, mouseY);
+            }
+            if (isHovering(-36, 54, 12, 12, mouseX, mouseY)) {
+                renderSideTooltip(guiGraphics, "gui.advancedmachinery.side.down", menu.getSideConfig(1), mouseX, mouseY);
+            }
+            if (isHovering(-36, 40, 12, 12, mouseX, mouseY)) {
+                renderSideTooltip(guiGraphics, "gui.advancedmachinery.side.front", menu.getSideConfig(2), mouseX, mouseY);
+            }
+            if (isHovering(-36, 68, 12, 12, mouseX, mouseY)) {
+                renderSideTooltip(guiGraphics, "gui.advancedmachinery.side.back", menu.getSideConfig(3), mouseX, mouseY);
+            }
+            if (isHovering(-50, 40, 12, 12, mouseX, mouseY)) {
+                renderSideTooltip(guiGraphics, "gui.advancedmachinery.side.left", menu.getSideConfig(4), mouseX, mouseY);
+            }
+            if (isHovering(-22, 40, 12, 12, mouseX, mouseY)) {
+                renderSideTooltip(guiGraphics, "gui.advancedmachinery.side.right", menu.getSideConfig(5), mouseX, mouseY);
+            }
+        }
+    }
+
+    private void renderSideTooltip(GuiGraphics guiGraphics, String sideTranslationKey, int mode, int mouseX, int mouseY) {
+        Component sideName = Component.translatable(sideTranslationKey);
+        Component modeName = Component.translatable(getModeKey(mode));
+        guiGraphics.renderTooltip(this.font, Component.translatable("gui.advancedmachinery.tooltip.side_format", sideName, modeName), mouseX, mouseY);
+    }
+
+    private String getModeKey(int mode) {
+        return switch (mode) {
+            case 0 -> "gui.advancedmachinery.mode.disabled";
+            case 1 -> "gui.advancedmachinery.mode.base";
+            case 2 -> "gui.advancedmachinery.mode.modifier";
+            case 3 -> "gui.advancedmachinery.mode.output";
+            case 4 -> "gui.advancedmachinery.mode.any";
+            default -> "gui.advancedmachinery.mode.any";
+        };
     }
 
     private String formatEnergy(int energy) {
@@ -253,23 +325,99 @@ public class AdvancedEmpowererScreen extends AbstractContainerScreen<AdvancedEmp
         g.drawString(this.font, label, x + 3, y + 2, labelColor, false);
     }
 
+    private void drawColorButton(GuiGraphics g, int x, int y, int mode, String label, int mouseX, int mouseY) {
+        int size = 12;
+        boolean hovered = mouseX >= x && mouseX < x + size && mouseY >= y && mouseY < y + size;
+        int bg = switch (mode) {
+            case 0 -> 0xFF708090; // Disabled: Gray
+            case 1 -> 0xFF1F75FE; // Base Input: Blue
+            case 2 -> 0xFFD4AF37; // Modifier Input: Yellow
+            case 3 -> 0xFF2E8B57; // Output Only: Green
+            case 4 -> 0xFF8F00FF; // Any: Purple
+            default -> 0xFF708090;
+        };
+        
+        if (hovered) {
+            int r = (bg >> 16) & 0xFF;
+            int gr = (bg >> 8) & 0xFF;
+            int b = bg & 0xFF;
+            r = Math.min(255, r + 30);
+            gr = Math.min(255, gr + 30);
+            b = Math.min(255, b + 30);
+            bg = 0xFF000000 | (r << 16) | (gr << 8) | b;
+        }
+
+        g.fill(x, y, x + size, y + size, 0xFF3C3C3C);
+        g.fill(x + 1, y + 1, x + size - 1, y + size - 1, bg);
+        g.drawString(this.font, label, x + 3, y + 2, 0xFFFFFFFF, false);
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int x = this.leftPos;
         int y = this.topPos;
+
+        // C (Configuratore Lati)
+        if (mouseX >= (double) (x + 134) && mouseX < (double) (x + 134 + 12) && mouseY >= (double) (y + 90) && mouseY < (double) (y + 90 + 12)) {
+            showSidedConfig = !showSidedConfig;
+            return true;
+        }
+
+        // R (Round Robin) - y=24
         if (mouseX >= (double) (x + 100) && mouseX < (double) (x + 100 + 12) && mouseY >= (double) (y + 24) && mouseY < (double) (y + 24 + 12)) {
-            net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 0));
-            return true;
-        } else if (mouseX >= (double) (x + 114) && mouseX < (double) (x + 114 + 12) && mouseY >= (double) (y + 24) && mouseY < (double) (y + 24 + 12)) {
-            net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 1));
-            return true;
-        } else if (mouseX >= (double) (x + 100) && mouseX < (double) (x + 100 + 12) && mouseY >= (double) (y + 38) && mouseY < (double) (y + 38 + 12)) {
             net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 2));
             return true;
-        } else if (mouseX >= (double) (x + 114) && mouseX < (double) (x + 114 + 12) && mouseY >= (double) (y + 38) && mouseY < (double) (y + 38 + 12)) {
+        }
+        // 1 (Single Item Mode) - y=24
+        if (mouseX >= (double) (x + 114) && mouseX < (double) (x + 114 + 12) && mouseY >= (double) (y + 24) && mouseY < (double) (y + 24 + 12)) {
             net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 3));
             return true;
         }
+
+        if (showSidedConfig) {
+            // Auto Input (I)
+            if (mouseX >= (double) (x - 42) && mouseX < (double) (x - 42 + 12) && mouseY >= (double) (y + 90) && mouseY < (double) (y + 90 + 12)) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 0));
+                return true;
+            }
+            // Auto Output (O)
+            if (mouseX >= (double) (x - 24) && mouseX < (double) (x - 24 + 12) && mouseY >= (double) (y + 90) && mouseY < (double) (y + 90 + 12)) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 1));
+                return true;
+            }
+
+            // U (Up) -> 4
+            if (mouseX >= (double) (x - 36) && mouseX < (double) (x - 36 + 12) && mouseY >= (double) (y + 26) && mouseY < (double) (y + 26 + 12)) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 4));
+                return true;
+            }
+            // L (Left) -> 8
+            if (mouseX >= (double) (x - 50) && mouseX < (double) (x - 50 + 12) && mouseY >= (double) (y + 40) && mouseY < (double) (y + 40 + 12)) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 8));
+                return true;
+            }
+            // F (Front) -> 6
+            if (mouseX >= (double) (x - 36) && mouseX < (double) (x - 36 + 12) && mouseY >= (double) (y + 40) && mouseY < (double) (y + 40 + 12)) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 6));
+                return true;
+            }
+            // R (Right) -> 9
+            if (mouseX >= (double) (x - 22) && mouseX < (double) (x - 22 + 12) && mouseY >= (double) (y + 40) && mouseY < (double) (y + 40 + 12)) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 9));
+                return true;
+            }
+            // D (Down) -> 5
+            if (mouseX >= (double) (x - 36) && mouseX < (double) (x - 36 + 12) && mouseY >= (double) (y + 54) && mouseY < (double) (y + 54 + 12)) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 5));
+                return true;
+            }
+            // B (Back) -> 7
+            if (mouseX >= (double) (x - 36) && mouseX < (double) (x - 36 + 12) && mouseY >= (double) (y + 68) && mouseY < (double) (y + 68 + 12)) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.advancedmachinery.network.ToggleAutoSettingPayload(menu.getBlockPos(), 7));
+                return true;
+            }
+        }
+
         return super.mouseClicked(mouseX, mouseY, button);
     }
 }
