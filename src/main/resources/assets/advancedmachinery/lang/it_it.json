@@ -5,5 +5,21 @@
     "itemGroup.advancedmachinery": "Advanced Machinery",
     "container.advancedmachinery.advanced_empowerer": "Potenziatore Avanzato",
     "tooltip.advancedmachinery.speed_upgrade": "Riduce il tempo di lavorazione.",
-    "tooltip.advancedmachinery.energy_upgrade": "Riduce il consumo energetico e aumenta la capienza del buffer."
+    "tooltip.advancedmachinery.energy_upgrade": "Riduce il consumo energetico e aumenta la capienza del buffer.",
+    "gui.advancedmachinery.status.active": "\u00a7aATTIVO",
+    "gui.advancedmachinery.status.inactive": "\u00a7cDISATTIVO",
+    "gui.advancedmachinery.tooltip.auto_input": "Auto Inserimento: %s",
+    "gui.advancedmachinery.tooltip.auto_output": "Auto Estrazione: %s",
+    "gui.advancedmachinery.tooltip.round_robin": "Round Robin: %s",
+    "gui.advancedmachinery.tooltip.round_robin.desc.1": "\u00a77Distribuisce gli oggetti in modo",
+    "gui.advancedmachinery.tooltip.round_robin.desc.2": "\u00a77equo tra gli slot dei modificatori",
+    "gui.advancedmachinery.tooltip.single_item": "Modalit\u00e0 Oggetto Singolo: %s",
+    "gui.advancedmachinery.tooltip.single_item.desc.1": "\u00a77Limita gli slot di input a 1",
+    "gui.advancedmachinery.tooltip.single_item.desc.2": "\u00a77oggetto (come gli stand originali)",
+    "gui.advancedmachinery.energy_tooltip.title": "\u00a7eEnergia",
+    "gui.advancedmachinery.energy_tooltip.value": "\u00a77%s / %s FE",
+    "gui.advancedmachinery.energy_tooltip.recipe_cost": "\u00a7cCosto Ricetta: \u00a7f%s FE",
+    "gui.advancedmachinery.energy_tooltip.usage": "\u00a7cConsumo: \u00a7f%s FE/t",
+    "gui.advancedmachinery.energy_tooltip.speed_upgrade": "\u00a7aVelocit\u00e0: \u00a7f-%s%% tempo di lavoro",
+    "gui.advancedmachinery.energy_tooltip.energy_upgrade": "\u00a76Efficienza: \u00a7f-%s%% energia consumata"
 }
